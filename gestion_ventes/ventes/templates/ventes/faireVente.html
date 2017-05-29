@@ -1,0 +1,52 @@
+<form method="post" action="{% url "modifier_transaction" %}">
+{% csrf_token %}
+<p><input type="submit" value="Retour à la page des transactions"></p>
+</form>
+
+<h1>{{trans.noTrans}}
+    {%if trans.payee %}
+        Payé
+    {%else%}
+        Pas payé   
+    {%endif%} 
+</h1>
+
+<form method="post" action="{% url "faire_vente" %}" id='vente_form'>
+    {% csrf_token %}
+    
+    {%if trans.payee %}
+        <fieldset disabled>  
+    {%endif%} 
+    
+
+    {{ transac_form.management_form }}
+    
+    {{ vente_formset.management_form }}
+
+    {{transac_form.as_table}}
+    
+    <table>
+    {% for form in vente_formset %}
+        <tr>
+            <td> {{form.noVente}} </td>
+            <td> {{ form.item }} </td>
+            <td> {{ form.prixHTVendu }} </td>
+        </tr>
+    {% endfor %}
+    </table>
+    <input type="submit" value="Générer prix" name="calcul"/>
+    <input type="submit" value="Payer" name="payer"/>
+    
+    {%if trans.payee %}
+        </fieldset> 
+        <input type="submit" value="Supprimer" name="annuler"/>
+    {%endif%}
+    
+        
+</form>
+
+Prix total HT : {{totalPrixHT}}
+TVQ : {{totalTvq}}
+TPS: {{totalTps}}
+Prix TC : {{totalPrixTC}}
+

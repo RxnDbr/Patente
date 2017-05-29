@@ -1,0 +1,9 @@
+
+<ul>
+{% for membre in liste_membres %}
+    <li>{{membre.nom}}</li>
+{% empty %}
+
+    <p>Aucun membre</p>
+{% endfor %}
+</ul>

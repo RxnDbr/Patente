@@ -1,0 +1,13 @@
+{{b}}
+<form method="post" action="{% url "ajouter_transaction" %}">
+    {% csrf_token %}
+    <input type="submit" value="Ajouter Transaction">
+</form>
+
+Modifier transaction
+<form method="post" action="{% url "modifier_transaction" %}">
+    {% csrf_token %}
+    {{form}}
+    <input type="submit" value="Modifier Transaction">
+</form>
+

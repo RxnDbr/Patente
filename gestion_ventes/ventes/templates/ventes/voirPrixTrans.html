@@ -1,0 +1,9 @@
+<table>
+    {% for vente in ventes %}
+        <tr>
+            {%for k,v in vente.items%}
+                <td>{{v}}</td>
+            {%endfor%}
+        </tr>
+    {% endfor %}
+</table>
