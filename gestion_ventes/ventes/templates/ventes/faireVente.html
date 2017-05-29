@@ -1,6 +1,8 @@
+{{a}}
+
 <form method="post" action="{% url "modifier_transaction" %}">
-{% csrf_token %}
-<p><input type="submit" value="Retour à la page des transactions"></p>
+    {% csrf_token %}
+    <p><input type="submit" value="Retour à la page des transactions"></p>
 </form>
 
 <h1>{{trans.noTrans}}
@@ -22,9 +24,16 @@
     {{ transac_form.management_form }}
     
     {{ vente_formset.management_form }}
-
+    
+    <h2> Client </h2>    
+    Courriel : <input type="email" name="courriel" value="{{initial_courriel}}">{% csrf_token %}</input></br>
+    Nom de famille : <input type="text" name ="nom" value="{{initial_nom}}">{% csrf_token %}</input></br>
+    Prénom : <input type="text" name="prenom" value="{{initial_prenom}}">{% csrf_token %}</input></br>
+    
+    <h2> Infos facture </h2>
     {{transac_form.as_table}}
     
+    <h2> Item commandés </h2>    
     <table>
     {% for form in vente_formset %}
         <tr>
@@ -34,6 +43,7 @@
         </tr>
     {% endfor %}
     </table>
+    
     <input type="submit" value="Générer prix" name="calcul"/>
     <input type="submit" value="Payer" name="payer"/>
     

@@ -9,7 +9,7 @@ class VenteForm(forms.ModelForm):
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = ('client','moyenPaiement','vendeur')
+        fields = ('moyenPaiement','vendeur')
         
 class ChoixTransForm(forms.Form):
     CHOICES = ()

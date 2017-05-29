@@ -15,20 +15,15 @@ class Client(models.Model):
     nom = models.CharField(max_length=30, verbose_name='Nom')
     prenom = models.CharField(max_length=30, verbose_name='Prénom')
     courriel = models.EmailField(primary_key=True,max_length=50, unique=True, verbose_name='Courriel')
+    
+    def __str__(self):
+        return self.courriel +'--'+ self.prenom + self.nom + ' '
                                     
 class Membre(Client):
     idMembre =  models.CharField(max_length=6, primary_key=True, verbose_name='Numéro de membre')
     cp = models.CharField(max_length=7, verbose_name='Code Postal')
     telephone = models.CharField(max_length=12, verbose_name='Numéro de téléphone')
     dateAdh = models.DateField(verbose_name='Date d\'Adhésion')
-
-    def __str__(self):
-        """ 
-        Cette méthode que nous définirons dans tous les modèles
-        nous permettra de reconnaître facilement les différents objets que 
-        nous traiterons plus tard et dans l'administration
-        """
-        return self.idMembre +'--'+ self.nom + ' '+  self.prenom
         
         
 

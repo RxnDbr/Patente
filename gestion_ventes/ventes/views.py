@@ -1,7 +1,7 @@
 # Create your views here.
 from django.contrib import messages
 from django.http import Http404
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, render_to_response
 from django.forms import modelformset_factory,inlineformset_factory
 from django.db import IntegrityError, transaction
 from .models import Client, Membre,Vente, Taxes, Transaction, Item
@@ -10,7 +10,7 @@ from datetime import date
 
 noTrans = Transaction.objects.all().last().noTrans
 taxes = Taxes.objects.all().last()
-
+a = []
     
 def ajouter_transaction(request):
     global noTrans
@@ -30,16 +30,21 @@ def ajouter_transaction(request):
 
 def faire_vente(request):
     trans = Transaction.objects.filter(noTrans=noTrans)
-    a = []
+    global a
     if trans:
         a.append(11)
         trans = trans[0]
-        initial_trans = {'client':trans.client, 'moyenPaiement':trans.moyenPaiement, 'vendeur':trans.vendeur}
+        initial_trans = {'moyenPaiement':trans.moyenPaiement, 'vendeur':trans.vendeur}
+        initial_nom= trans.client.nom
+        initial_prenom = trans.client.prenom
+        initial_courriel = trans.client.courriel      
     else:
         a.append(12)
-        trans = Transaction(noTrans=noTrans, client=Client.objects.all()[0], moyenPaiement='', vendeur='')
-        trans.save() 
-        initial_trans =  {'client':None, 'moyenPaiement':None, 'vendeur':None}
+        trans = Transaction(noTrans=noTrans, client=Client('','',''), moyenPaiement='', vendeur='')
+        initial_trans =  {'moyenPaiement':None, 'vendeur':None}
+        initial_nom = initial_prenom = initial_courriel = ''
+        
+        
     
     #MANAGE INITIAL DISPLAY  
     ventes_trans = Vente.objects.filter(noTrans=trans)
@@ -84,11 +89,25 @@ def faire_vente(request):
 #            return render({}, 'ventes/modifier_transaction.html', locals())
             return redirect(modifier_transaction)
             
+        if "courriel" in request.POST:#and "nom" and "prenom" in request.POST:          
+            courriel = request.POST['courriel']
+            client = Client.objects.filter(courriel=courriel)
+            a.append(courriel)
+            if client:
+                client = client[0]
+                a.append('connait')
+            else:
+                nom = request.POST['nom']
+                prenom = request.POST['prenom']
+                client = Client(nom=nom, prenom=prenom, courriel=courriel)
+                client.save()  
+                a.append('connait pas')          
+            
         if transac_form.is_valid():
             a.append(7)
             transac = transac_form.save(commit=False)
             transac.noTrans = trans.noTrans
-            transac.client = transac_form.cleaned_data['client']
+            transac.client = client
             transac.moyenPaiement = transac_form.cleaned_data['moyenPaiement']
             transac.vendeur = transac_form.cleaned_data['vendeur']
                 
