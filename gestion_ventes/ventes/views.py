@@ -1,16 +1,27 @@
 # Create your views here.
 from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
 from django.shortcuts import render, redirect, render_to_response
 from django.forms import modelformset_factory,inlineformset_factory
 from django.db import IntegrityError, transaction
-from .models import Client, Membre,Vente, Taxes, Transaction, Item
+from .models import *
 from .forms import VenteForm, TransactionForm, ChoixTransForm
 from datetime import date
 
-noTrans = Transaction.objects.all().last().noTrans
+
+def genererNoTrans():
+    trans = Transaction.objects.all()
+    if len(trans)==0:
+        str_date = date.today().strftime("%Y%m%d")
+        noTrans = str_date+'000'
+    else:
+        noTrans = trans.last().noTrans
+    return noTrans
+
+noTrans = genererNoTrans()
 taxes = Taxes.objects.all().last()
-a = []
+
     
 def ajouter_transaction(request):
     global noTrans
@@ -30,7 +41,7 @@ def ajouter_transaction(request):
 
 def faire_vente(request):
     trans = Transaction.objects.filter(noTrans=noTrans)
-    global a
+    a = []
     if trans:
         a.append(11)
         trans = trans[0]
@@ -51,23 +62,25 @@ def faire_vente(request):
     ventes_data = []
     totalPrixHT = totalTps = totalTvq = 0
     for vente in ventes_trans:
-        ventes_data.append({'item':vente.item, 'noVente':vente.noVente, 'prixHTVendu':vente.prixHTVendu})
-        totalTps+= vente.item.calculTps(taxes)
-        totalTvq+= vente.item.calculTvq(taxes)
+        ventes_data.append({'content_object':vente.content_object, 'noVente':vente.noVente, 'prixHTVendu':vente.prixHTVendu})
+        if isinstance(vente.content_object, Item):
+            totalTps+= vente.content_object.calculTps(taxes)
+            totalTvq+= vente.content_object.calculTvq(taxes)
 #    a.append(ventes_data)
     max_num = 10
     initial_vente =  []
     for indice_vente in range(max_num): 
         if indice_vente < len(ventes_data):
             a.append(10)
-            item = ventes_data[indice_vente]['item']
+            content_object = ventes_data[indice_vente]['content_object']
+            noRef = ventes_data[indice_vente]['content_object'].noRef
             noVente = ventes_data[indice_vente]['noVente'] 
             prixHTVendu = ventes_data[indice_vente]['prixHTVendu'] 
         else : 
-            item = None
+            noRef = None
             noVente = trans.noTrans+'0'+str(indice_vente)
             prixHTVendu = 0 
-        initial_vente.append({'item' : item, 'noVente':noVente, 'prixHTVendu':prixHTVendu})  
+        initial_vente.append({'item' : noRef, 'noVente':noVente, 'prixHTVendu':prixHTVendu})  
         totalPrixHT+= prixHTVendu
     a.append(initial_vente)      
 
@@ -85,7 +98,7 @@ def faire_vente(request):
             for existe in existe_trans:
                 existe.delete()
             global noTrans
-            noTrans =Transaction.objects.all().last().noTrans
+            noTrans =generNoTrans()
 #            return render({}, 'ventes/modifier_transaction.html', locals())
             return redirect(modifier_transaction)
             
@@ -120,7 +133,8 @@ def faire_vente(request):
                 transac.payee=True
         
             transac.save() 
-            vente_formset = VenteFormSet(request.POST, queryset=Vente.objects.none(), initial=initial_vente, prefix='vente')  
+            vente_formset = VenteFormSet(request.POST, queryset=Vente.objects.none(), initial=initial_vente,prefix='vente')
+            a.append(request.POST)  
                        
 #            if vente_formset.is_valid(): 
             for vente_form in vente_formset:
@@ -129,6 +143,7 @@ def faire_vente(request):
                     noItem = request.POST[vente_formset.prefix+'-'+str(i)+'-item']
                     noVente = request.POST[vente_formset.prefix+'-'+str(i)+'-noVente']
                     prixHT = request.POST[vente_formset.prefix+'-'+str(i)+'-prixHTVendu']
+                    a.append(prixHT)
                     i+=1
                     if noItem:
                         a.append(5)
@@ -136,15 +151,28 @@ def faire_vente(request):
                         vente.noVente = noVente
                         existe_vente = Vente.objects.filter(noVente=noVente)
                         if existe_vente:
-                            existe_vente[0].delete()     
-                        vente.item = Item.objects.get(noRef=noItem)
-                        vente.prixHTVendu = vente.item.prixHT
-                        vente.noTrans = transac
-                        vente.save()
+                            existe_vente[0].delete()
+                        for classe in Item.__subclasses__():
+                            for elmt in classe.objects.all():
+                                if elmt.noRef==noItem:
+                                    vente.content_object= elmt
+                        if vente.content_object :
+                            if prixHT=='0' :
+                                vente.prixHTVendu = vente.content_object.prixHT
+                            else:
+                                vente.prixHTVendu = float(prixHT)
+                            vente.noTrans = transac
+                            vente.save()  
+                                           
+                        
+#                        vente.item = ContentType.objects.get_for_model(type()    
+#                        vente.item = ct.get_object_for_this_type(pk=object_id) 
+#                        vente.item = Item.objects.get(noRef=noItem)
+
                 else:
                     a.append(4)
 
-            return redirect(faire_vente)
+#            return redirect(faire_vente)
     else:
         a.append(3)
         a.append(request)

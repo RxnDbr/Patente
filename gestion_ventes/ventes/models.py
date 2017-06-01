@@ -1,9 +1,48 @@
-from django.db import models
 from datetime import timedelta, datetime
+from django.db import models
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 
 itemptr = 0
 
 # Create your models here.
+
+class Transaction(models.Model):
+    PAIEMENT = (
+        ('DEBIT','Débit'),
+        ('COMPTANT','Comptant'),
+        ('LIGNE','En ligne'),
+    )
+
+    noTrans = models.CharField(max_length=11, verbose_name='Numréro de transaction',
+        help_text='20170506004 si c\'est la 4ème vente de la journée du 6 mai 2017 par exemple')
+    moyenPaiement = models.CharField(max_length=10, choices=PAIEMENT, verbose_name='Moyen de Paiement')
+    dateTrans = models.DateTimeField(auto_now_add=True, auto_now=False,
+                                verbose_name="Date de transaction")
+    client = models.ForeignKey('Client')
+    vendeur = models.CharField(max_length=30)
+    payee = models.BooleanField(default=False, verbose_name='Payé')
+
+    def __str__(self):
+        return self.noTrans +'--'+self.client.nom
+
+class Vente(models.Model):  
+    noVente = models.CharField(max_length=13, primary_key=True, verbose_name='Numéro de vente', help_text='rajouter le numero d\'item de la transaction au numero de transaction')
+    noTrans = models.ForeignKey('Transaction')
+    prixHTVendu = models.DecimalField(max_digits=6,decimal_places=3,verbose_name='Prix de vente HT')
+#    item = models.ForeignKey('Item')
+    
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.CharField(max_length=6, verbose_name='Référence Article')
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    def __str__(self):
+        """ 
+        Cette méthode que nous définirons dans tous les modèles
+        nous permettra de reconnaître facilement les différents objets que 
+        nous traiterons plus tard et dans l'administration
+        """
+        return self.noVente + '--' + self.content_object.nom
 
 class Taxes(models.Model):
     tps = models.DecimalField(max_digits=5, decimal_places=4)
@@ -17,15 +56,14 @@ class Client(models.Model):
     courriel = models.EmailField(primary_key=True,max_length=50, unique=True, verbose_name='Courriel')
     
     def __str__(self):
-        return self.courriel +'--'+ self.prenom + self.nom + ' '
+        return self.courriel +'--'+ self.prenom + self.nom 
                                     
 class Membre(Client):
     idMembre =  models.CharField(max_length=6, primary_key=True, verbose_name='Numéro de membre')
     cp = models.CharField(max_length=7, verbose_name='Code Postal')
     telephone = models.CharField(max_length=12, verbose_name='Numéro de téléphone')
     dateAdh = models.DateField(verbose_name='Date d\'Adhésion')
-        
-        
+
 
 class Item(models.Model):
     noRef = models.CharField(max_length=6,primary_key=True, verbose_name='Référence Article')
@@ -50,6 +88,9 @@ class Item(models.Model):
     def calculPrixTTC(self,taxes):
         prixTTC = self.prixHT + calculTps(taxes) + calculTvq(taxes)
         return prixTTC
+    
+    def dateFinValidite(self, vente):
+        return vente.noTrans.dateTrans
         
     def __str__(self):
         """ 
@@ -57,7 +98,8 @@ class Item(models.Model):
         nous permettra de reconnaître facilement les différents objets que 
         nous traiterons plus tard et dans l'administration
         """
-        return self.noRef +' -- '+  self.nom    
+        return self.nom  
+          
     class Meta:
         abstract=False
         
@@ -80,7 +122,11 @@ class AbonnementAtelier(Item):
         parent_link=True,
         default=datetime.now()
     )
-    itemptr+=1
+    itemptr+=1    
+    
+    def dateFinValidite(self, vente):
+        dateFin = vente.noTrans.dateTrans + self.duree
+        return dateFin
 
 
 class Entreposage(Item):
@@ -149,36 +195,3 @@ class Formation(Item):
         default=itemptr
     )
     itemptr+=1
-        
-class Transaction(models.Model):
-    PAIEMENT = (
-        ('DEBIT','Débit'),
-        ('COMPTANT','Comptant'),
-        ('LIGNE','En ligne'),
-    )
-
-    noTrans = models.CharField(max_length=11, verbose_name='Numréro de transaction',
-        help_text='20170506004 si c\'est la 4ème vente de la journée du 6 mai 2017 par exemple')
-    moyenPaiement = models.CharField(max_length=10, choices=PAIEMENT, verbose_name='Moyen de Paiement')
-    dateTrans = models.DateTimeField(auto_now_add=True, auto_now=False,
-                                verbose_name="Date de transaction")
-    client = models.ForeignKey('Client')
-    vendeur = models.CharField(max_length=30)
-    payee = models.BooleanField(default=False, verbose_name='Payé')
-
-    def __str__(self):
-        return self.noTrans +'--'+self.client.nom
-
-class Vente(models.Model):
-    noVente = models.CharField(max_length=13, primary_key=True, verbose_name='Numéro de vente', help_text='rajouter le numero d\'item de la transaction au numero de transaction')
-    noTrans = models.ForeignKey('Transaction')
-    item = models.ForeignKey('Item')
-    prixHTVendu = models.DecimalField(max_digits=6,decimal_places=3,verbose_name='Prix de vente HT')
-
-    def __str__(self):
-        """ 
-        Cette méthode que nous définirons dans tous les modèles
-        nous permettra de reconnaître facilement les différents objets que 
-        nous traiterons plus tard et dans l'administration
-        """
-        return self.noVente + '--' + self.item.nom
