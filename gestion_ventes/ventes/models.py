@@ -106,7 +106,7 @@ class Benevole(Membre):
     def calculRabais(self):
         return selfnbHeuresCum*self.compensationHeure
         
-class Formateur(Client):
+class Formateur(models.Model):
     CHOICES = (
         ('bois', 'bois'),
         ('metal', 'metal'),
@@ -119,7 +119,10 @@ class Formateur(Client):
         ('soudure','soudure'),
         ('autre','autre'),
     )
-
+    nom = models.CharField(max_length=30, verbose_name='Nom')
+    prenom = models.CharField(max_length=30, verbose_name='Prénom')
+    courriel = models.EmailField(max_length=50, verbose_name='Courriel')
+    
     telephone = models.CharField(max_length=12, verbose_name='Numéro de téléphone', blank=True)
     domaine1 = models.CharField(max_length=15,choices=CHOICES, verbose_name='Domaine 1', blank=True)
     domaine2 = models.CharField(max_length=15,choices=CHOICES, verbose_name='Domaine 2', blank=True)
@@ -130,7 +133,7 @@ class Formateur(Client):
     desc = models.TextField(verbose_name='Description de l\'expérience')
     
     def calculRemuneration(self):
-        return selfnbHeuresCum*self.compensationHeure    
+        return selfnbHeuresCum*self.compensationHeure   
 
 class Item(models.Model):
     noRef = models.CharField(max_length=6,primary_key=True, verbose_name='Référence Article')

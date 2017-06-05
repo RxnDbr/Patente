@@ -47,7 +47,7 @@ class ItemAdmin(admin.ModelAdmin):
 
 admin.site.register(Membre, MembreAdmin)
 admin.site.register(Benevole)
-admin.site.register(Formateur)
+#admin.site.register(Formateur)
 admin.site.register(Vente, VenteAdmin)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Taxes, TaxesAdmin)
