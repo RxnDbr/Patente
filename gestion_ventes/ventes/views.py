@@ -84,7 +84,7 @@ def faire_vente(request):
         totalPrixHT+= prixHTVendu
     a.append(initial_vente)      
 
-    totalPrixTC = totalPrixHT + totalTvq + totalTps
+    totalPrixTC  = totalPrixHT + totalTvq + totalTps
     
     VenteFormSet = modelformset_factory(Vente,form=VenteForm, extra=max_num, max_num=max_num, can_delete=False)   
     envoi = False
@@ -172,7 +172,7 @@ def faire_vente(request):
                 else:
                     a.append(4)
 
-#            return redirect(faire_vente)
+            return redirect(faire_vente)
     else:
         a.append(3)
         a.append(request)

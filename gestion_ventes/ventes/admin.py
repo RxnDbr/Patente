@@ -12,10 +12,10 @@ class MembreAdmin(admin.ModelAdmin):
     search_field = ('idMembre','nom', 'prenom', 'courriel', 'cp')
 
 class VenteAdmin(admin.ModelAdmin):
-    fields=('noVente','item','noTrans','prixHTVendu')
-    list_display = ('noVente','item', 'get_client','get_payee', 'get_dateFin','prixHTVendu')
-#    list_filter=('item__nom',)
+    fields=('noVente','content_object','noTrans','prixHTVendu')
+    list_display = ('noVente','content_object', 'get_client','get_payee', 'get_dateFin','prixHTVendu')
     search_fields = ('noTrans__client__courriel','noTrans__client__nom', 'noTrans__client__prenom')
+    list_filter = ('object_id',)
 
     def get_client(self, obj):
         return obj.noTrans.client.courriel
@@ -27,7 +27,10 @@ class VenteAdmin(admin.ModelAdmin):
         return obj.noTrans.payee
     
     def get_dateFin(self,obj):
-        date = obj.item.dateFinValidite(obj)
+        try:
+            date = obj.content_object.dateFinValidite(obj)
+        except:
+            date = None
         return date
     
     
@@ -43,7 +46,9 @@ class ItemAdmin(admin.ModelAdmin):
     list_display = ('noRef','nom','prixHT')
 
 admin.site.register(Membre, MembreAdmin)
-admin.site.register(Vente)
+admin.site.register(Benevole)
+admin.site.register(Formateur)
+admin.site.register(Vente, VenteAdmin)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Taxes, TaxesAdmin)
 
@@ -53,5 +58,4 @@ admin.site.register(AbonnementAtelier, ItemAdmin)
 admin.site.register(Entreposage, ItemAdmin)
 admin.site.register(Materiel, ItemAdmin)
 admin.site.register(Formation, ItemAdmin)
-admin.site.register(Client)
 admin.site.register(ContributionVolontaire, ItemAdmin)
