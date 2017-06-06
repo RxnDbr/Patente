@@ -5,12 +5,19 @@ from datetime import date
 # Register your models here.
 
 class MembreAdmin(admin.ModelAdmin):
-    list_display = ('idMembre', 'nom', 'prenom', 'courriel','telephone', 'cp')
+    list_display = ('idMembre', 'client_nom', 'client_prenom', 'client_courriel','telephone', 'cp')
 #    list_filter = ('cp',)
+    fields = ('client_ptr','telephone', 'cp')
     date_hierarchy = 'dateAdh'
     ordering = ('idMembre',)
-    search_field = ('idMembre','nom', 'prenom', 'courriel', 'cp')
-
+    search_fields = ('idMembre','nom', 'prenom', 'courriel', 'cp')
+    
+class BenevoleAdmin(admin.ModelAdmin):
+    list_display = ('membre_client_prenom', 'membre_client_nom', 'membre_client_courriel', 'membre_telephone')
+    
+class FormateurAdmin(admin.ModelAdmin):
+    list_display = ('nom', 'prenom', 'courriel','telephone')
+    
 class VenteAdmin(admin.ModelAdmin):
     fields=('noVente','content_object','noTrans','prixHTVendu')
     list_display = ('noVente','content_object', 'get_client','get_payee', 'get_dateFin','prixHTVendu')
@@ -45,9 +52,10 @@ class TransactionAdmin(admin.ModelAdmin):
 class ItemAdmin(admin.ModelAdmin):
     list_display = ('noRef','nom','prixHT')
 
-admin.site.register(Membre, MembreAdmin)
+admin.site.register(Client)
+admin.site.register(Membre)
 admin.site.register(Benevole)
-#admin.site.register(Formateur)
+admin.site.register(Formateur, FormateurAdmin)
 admin.site.register(Vente, VenteAdmin)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Taxes, TaxesAdmin)

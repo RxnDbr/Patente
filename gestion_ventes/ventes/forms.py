@@ -17,7 +17,10 @@ class TransactionForm(forms.ModelForm):
         fields = ('moyenPaiement','vendeur')
         
 class ChoixTransForm(forms.Form):
-    CHOICES = ()
-    for trans in Transaction.objects.all().order_by('-dateTrans'):
-        CHOICES+=((trans.noTrans, trans),)
-    transaction = forms.ChoiceField(choices=CHOICES)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        CHOICES = ()
+        for trans in Transaction.objects.all().order_by('-dateTrans'):
+            CHOICES+=((trans.noTrans, trans),)
+        self.fields['transaction'] = forms.ChoiceField(choices=CHOICES)
+        

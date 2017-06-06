@@ -5,10 +5,14 @@ from ventes import models
 inp = csv.DictReader(open('ventes/membres.csv'), delimiter=',')
 
 for membre in inp:
+    c = models.Client()
+    c.nom = membre['Nom']
+    c.prenom = membre['Prenom']
+    c.courriel = membre['Courriel']
+    if len(models.Client.objects.filter(courriel=c.courriel))>0:
+        c.save()    
     m = models.Membre()
-    m.nom = membre['Nom']
-    m.prenom = membre['Prenom']
-    m.courriel = membre['Courriel']
+    m.client = c
     m.idMembre = membre['Numero']
     m.cp = membre['Code postal']
     m.telephone = membre['Téléphone']

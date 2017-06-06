@@ -4,9 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 
 itemptr = 0
-clientptr = 4
-membreptr=2
-
+membreptr=1
 
 # Create your models here.
 
@@ -61,21 +59,17 @@ class Client(models.Model):
     def __str__(self):
         return self.courriel +'--'+ self.prenom + self.nom 
                                     
-class Membre(Client):
-    idMembre =  models.CharField(max_length=6, verbose_name='Numéro de membre')
+class Membre(models.Model):
+    client = models.ForeignKey('Client')
+    idMembre =  models.CharField(max_length=6, verbose_name='Numéro de membre', primary_key=True)
     cp = models.CharField(max_length=7, verbose_name='Code Postal', blank=True)
     telephone = models.CharField(max_length=12, verbose_name='Numéro de téléphone', blank=True)
-    dateAdh = models.DateField(verbose_name='Date d\'Adhésion')
+    dateAdh = models.DateField(verbose_name='Date d\'Adhésion')    
+
+    def __str__(self):
+        return self.client.courriel +'--'+ self.client.prenom + self.client.nom 
     
-    global clientptr
-    client_ptr = models.OneToOneField(
-        Client, on_delete=models.CASCADE,
-        parent_link=True,
-        default=clientptr
-        )
-    clientptr+=1
-    
-class Benevole(Membre):
+class Benevole(models.Model):
     CHOICES = (
         ('accueil', 'accueil'),
         ('informatique', 'informatique'),
@@ -85,8 +79,11 @@ class Benevole(Membre):
         ('admin','admin'),
         ('commercial','commercial'),
         ('autre','autre'),
-    )
-    
+    )    
+    global membreptr   
+    numero = models.CharField(max_length=6, verbose_name='Numéro de bénévole', primary_key=True, default = membreptr)
+    membreptr+=1
+    membre = models.ForeignKey('Membre')  
     compensationHeure = 10.35
     nbHeuresCum = models.IntegerField(verbose_name='Nombre d\'heures de bénévolat cumulées')
     rabaisUtilise = models.DecimalField(max_digits=6,decimal_places=3, verbose_name='Rabais Utilisé')
@@ -94,17 +91,14 @@ class Benevole(Membre):
     domaine1 = models.CharField(max_length=15,choices=CHOICES, verbose_name='Domaine 1', blank=True)
     domaine2 = models.CharField(max_length=15,choices=CHOICES, verbose_name='Domaine 2', blank=True)
     domaine3 = models.CharField(max_length=15,choices=CHOICES, verbose_name='Domaine 3', blank=True)
-
-    global membreptr
-    membre_ptr = models.OneToOneField(
-        Membre, on_delete=models.CASCADE,
-        parent_link=True,
-        default=membreptr
-        )
-    membreptr+=1
+    
     
     def calculRabais(self):
         return selfnbHeuresCum*self.compensationHeure
+        
+    
+    def __str__(self):
+        return self.membre.client.courriel +'--'+ self.membre.client.prenom +' '+ self.membre.client.nom 
         
 class Formateur(models.Model):
     CHOICES = (
@@ -119,6 +113,7 @@ class Formateur(models.Model):
         ('soudure','soudure'),
         ('autre','autre'),
     )
+    
     nom = models.CharField(max_length=30, verbose_name='Nom')
     prenom = models.CharField(max_length=30, verbose_name='Prénom')
     courriel = models.EmailField(max_length=50, verbose_name='Courriel')
@@ -134,6 +129,9 @@ class Formateur(models.Model):
     
     def calculRemuneration(self):
         return selfnbHeuresCum*self.compensationHeure   
+    
+    def __str__(self):
+        return self.courriel +'--'+ self.prenom + self.nom 
 
 class Item(models.Model):
     noRef = models.CharField(max_length=6,primary_key=True, verbose_name='Référence Article')
