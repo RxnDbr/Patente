@@ -45,14 +45,14 @@ def faire_vente(request):
     if trans:
         a.append(11)
         trans = trans[0]
-        initial_trans = {'moyenPaiement':trans.moyenPaiement, 'vendeur':trans.vendeur}
+        initial_trans = {'moyenPaiement':trans.moyenPaiement, 'benevole':trans.benevole}
         initial_nom= trans.client.nom
         initial_prenom = trans.client.prenom
         initial_courriel = trans.client.courriel      
     else:
         a.append(12)
-        trans = Transaction(noTrans=noTrans, client=Client('','',''), moyenPaiement='', vendeur='')
-        initial_trans =  {'moyenPaiement':None, 'vendeur':None}
+        trans = Transaction(noTrans=noTrans, client=Client('','',''), moyenPaiement='', benevole=Benevole.objects.all()[0])
+        initial_trans =  {'moyenPaiement':None, 'benevole':None}
         initial_nom = initial_prenom = initial_courriel = ''
         
         
@@ -122,7 +122,7 @@ def faire_vente(request):
             transac.noTrans = trans.noTrans
             transac.client = client
             transac.moyenPaiement = transac_form.cleaned_data['moyenPaiement']
-            transac.vendeur = transac_form.cleaned_data['vendeur']
+            transac.benevole = transac_form.cleaned_data['benevole']
                 
             existe_trans = Transaction.objects.filter(noTrans=trans.noTrans)
             for existe in existe_trans:

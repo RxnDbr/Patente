@@ -14,7 +14,7 @@ class VenteForm(forms.ModelForm):
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = ('moyenPaiement','vendeur')
+        fields = ('moyenPaiement','benevole')
         
 class ChoixTransForm(forms.Form):
     def __init__(self, *args, **kwargs):

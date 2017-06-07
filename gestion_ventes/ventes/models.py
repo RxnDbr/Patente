@@ -4,7 +4,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 
 itemptr = 0
-membreptr=1
 
 # Create your models here.
 
@@ -22,6 +21,7 @@ class Transaction(models.Model):
                                 verbose_name="Date de transaction")
     client = models.ForeignKey('Client')
     vendeur = models.CharField(max_length=30)
+    benevole = models.ForeignKey('Benevole', blank=True, null=True)
     payee = models.BooleanField(default=False, verbose_name='Payé')
 
     def __str__(self):
@@ -54,7 +54,7 @@ class Taxes(models.Model):
 class Client(models.Model):
     nom = models.CharField(max_length=30, verbose_name='Nom')
     prenom = models.CharField(max_length=30, verbose_name='Prénom')
-    courriel = models.EmailField(primary_key=True,max_length=50, verbose_name='Courriel')
+    courriel = models.EmailField(max_length=50, verbose_name='Courriel')
     
     def __str__(self):
         return self.courriel +'--'+ self.prenom + self.nom 
@@ -80,9 +80,6 @@ class Benevole(models.Model):
         ('commercial','commercial'),
         ('autre','autre'),
     )    
-    global membreptr   
-    numero = models.CharField(max_length=6, verbose_name='Numéro de bénévole', primary_key=True, default = membreptr)
-    membreptr+=1
     membre = models.ForeignKey('Membre')  
     compensationHeure = 10.35
     nbHeuresCum = models.IntegerField(verbose_name='Nombre d\'heures de bénévolat cumulées')
@@ -98,7 +95,7 @@ class Benevole(models.Model):
         
     
     def __str__(self):
-        return self.membre.client.courriel +'--'+ self.membre.client.prenom +' '+ self.membre.client.nom 
+        return self.membre.client.prenom +' '+ self.membre.client.nom 
         
 class Formateur(models.Model):
     CHOICES = (

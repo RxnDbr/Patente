@@ -5,16 +5,18 @@ from datetime import date
 # Register your models here.
 
 class MembreAdmin(admin.ModelAdmin):
-    list_display = ('idMembre', 'client_nom', 'client_prenom', 'client_courriel','telephone', 'cp')
+    list_display = ('idMembre', 'client','telephone', 'cp')
 #    list_filter = ('cp',)
-    fields = ('client_ptr','telephone', 'cp')
     date_hierarchy = 'dateAdh'
     ordering = ('idMembre',)
-    search_fields = ('idMembre','nom', 'prenom', 'courriel', 'cp')
+    search_fields = ('idMembre','client__nom', 'client__prenom', 'client__courriel', 'cp')
     
 class BenevoleAdmin(admin.ModelAdmin):
-    list_display = ('membre_client_prenom', 'membre_client_nom', 'membre_client_courriel', 'membre_telephone')
-    
+    list_display = ('membre', 'get_tel')
+    def get_tel(self, obj):
+        return obj.membre.telephone
+        
+            
 class FormateurAdmin(admin.ModelAdmin):
     list_display = ('nom', 'prenom', 'courriel','telephone')
     
@@ -45,16 +47,16 @@ class TaxesAdmin(admin.ModelAdmin):
     list_diplay = ('tps','tvq')
 
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('noTrans','client','dateTrans','vendeur', 'payee')
-    list_filter = ('dateTrans', 'payee', 'vendeur',)
+    list_display = ('noTrans','client','dateTrans','benevole', 'payee')
+    list_filter = ('dateTrans', 'payee', 'benevole',)
     search_fields = ('client__courriel','client__nom', 'client__prenom')
     
 class ItemAdmin(admin.ModelAdmin):
     list_display = ('noRef','nom','prixHT')
 
 admin.site.register(Client)
-admin.site.register(Membre)
-admin.site.register(Benevole)
+admin.site.register(Membre, MembreAdmin)
+admin.site.register(Benevole)#, BenevoleAdmin)
 admin.site.register(Formateur, FormateurAdmin)
 admin.site.register(Vente, VenteAdmin)
 admin.site.register(Transaction, TransactionAdmin)
