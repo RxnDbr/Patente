@@ -16,4 +16,6 @@ class Migration(migrations.Migration):
             model_name='transaction',
             name='vendeur',
         ),
+        migrations.DeleteModel(name='Vente'),
+        migrations.DeleteModel(name='Transaction'),
     ]

@@ -9,7 +9,6 @@ from .models import *
 from .forms import VenteForm, TransactionForm, ChoixTransForm
 from datetime import date
 
-
 def genererNoTrans():
     trans = Transaction.objects.all()
     if len(trans)==0:
@@ -45,15 +44,15 @@ def faire_vente(request):
     if trans:
         a.append(11)
         trans = trans[0]
-        initial_trans = {'moyenPaiement':trans.moyenPaiement, 'benevole':trans.benevole}
+        initial_trans = {'moyenPaiement':trans.moyenPaiement, 'benevole':trans.benevole, 'commentaire':trans.commentaire}
         initial_nom= trans.client.nom
         initial_prenom = trans.client.prenom
         initial_courriel = trans.client.courriel  
         existant = True    
     else:
         a.append(12)
-        trans = Transaction(noTrans=noTrans, client=Client('','',''), moyenPaiement='', benevole=Benevole.objects.all()[0])
-        initial_trans =  {'moyenPaiement':None, 'benevole':None}
+        trans = Transaction(noTrans=noTrans, client=Client('','',''), moyenPaiement='', benevole=Benevole.objects.all()[0], commentaire='')
+        initial_trans =  {'moyenPaiement':None, 'benevole':None, 'commentaire':''}
         initial_nom = initial_prenom = initial_courriel = ''
         existant = False
         

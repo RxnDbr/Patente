@@ -20,9 +20,9 @@ class Transaction(models.Model):
     dateTrans = models.DateTimeField(auto_now_add=True, auto_now=False,
                                 verbose_name="Date de transaction")
     client = models.ForeignKey('Client')
-#    vendeur = models.CharField(max_length=30)
     benevole = models.ForeignKey('Benevole', blank=True, null=True)
     payee = models.BooleanField(default=False, verbose_name='Payé')
+    commentaire = models.TextField(blank=True)
 
     def __str__(self):
         return self.noTrans +'--'+self.client.nom

@@ -29,18 +29,25 @@
     Prénom : <input type="text" name="prenom" value="{{initial_prenom}}">{% csrf_token %}</input></br>
     
     <h2> Infos facture </h2>
-    {{transac_form.as_table}}
+    <table>
+        <tr> Moyen de Paiement: {{transac_form.moyenPaiement}} </tr>
+        <tr> Vendeur : {{transac_form.benevole}} </tr>
+    </table>
     
     <h2> Item commandés </h2>    
     <table>
     {% for form in vente_formset %}
         <tr>
-            <td> {{form.noVente}} </td>
+            <td> {{ form.noVente}} </td>
             <td> {{ form.item }} </td>
             <td> {{ form.prixHTVendu }} </td>
         </tr>
     {% endfor %}
     </table>
+    
+    
+    <h2>Commentaire : </h2> 
+    <p>{{transac_form.commentaire}}</p>
     
     <input type="submit" value="Générer prix" name="calcul"/>
     <input type="submit" value="Payer" name="payer"/>
