@@ -47,8 +47,11 @@
     
     {%if trans.payee %}
         </fieldset> 
-        <input type="submit" value="Supprimer" name="annuler"/>
     {%endif%}
+    
+    {%if existant %}
+        <input type="submit" value="Annuler" name="annuler"/>
+    {% endif %}
     
         
 </form>

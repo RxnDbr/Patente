@@ -48,12 +48,14 @@ def faire_vente(request):
         initial_trans = {'moyenPaiement':trans.moyenPaiement, 'benevole':trans.benevole}
         initial_nom= trans.client.nom
         initial_prenom = trans.client.prenom
-        initial_courriel = trans.client.courriel      
+        initial_courriel = trans.client.courriel  
+        existant = True    
     else:
         a.append(12)
         trans = Transaction(noTrans=noTrans, client=Client('','',''), moyenPaiement='', benevole=Benevole.objects.all()[0])
         initial_trans =  {'moyenPaiement':None, 'benevole':None}
         initial_nom = initial_prenom = initial_courriel = ''
+        existant = False
         
         
     
@@ -98,7 +100,7 @@ def faire_vente(request):
             for existe in existe_trans:
                 existe.delete()
             global noTrans
-            noTrans =generNoTrans()
+            noTrans =genererNoTrans()
 #            return render({}, 'ventes/modifier_transaction.html', locals())
             return redirect(modifier_transaction)
             
