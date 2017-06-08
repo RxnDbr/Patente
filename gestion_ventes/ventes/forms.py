@@ -6,10 +6,11 @@ class VenteForm(forms.ModelForm):
     CHOICES = ((None,'------'),)
     for it in Item.objects.all():
         CHOICES+=((it.noRef,it),)
-    item = forms.ChoiceField(choices=CHOICES)   
+    item = forms.ChoiceField(choices=CHOICES)
+    noVente = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}))
     class Meta:
         model = Vente
-        fields = ('noVente','prixHTVendu')
+        fields = ('prixHTVendu',)
 
 class TransactionForm(forms.ModelForm):
     class Meta:

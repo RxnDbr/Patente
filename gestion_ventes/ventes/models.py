@@ -30,7 +30,7 @@ class Transaction(models.Model):
 class Vente(models.Model):  
     noVente = models.CharField(max_length=13, primary_key=True, verbose_name='Numéro de vente', help_text='rajouter le numero d\'item de la transaction au numero de transaction')
     noTrans = models.ForeignKey('Transaction')
-    prixHTVendu = models.DecimalField(max_digits=6,decimal_places=3,verbose_name='Prix de vente HT')
+    prixHTVendu = models.DecimalField(max_digits=6,decimal_places=2,verbose_name='Prix de vente HT')
 #    item = models.ForeignKey('Item')
     
     content_type = models.ForeignKey(ContentType)
@@ -133,7 +133,7 @@ class Formateur(models.Model):
 class Item(models.Model):
     noRef = models.CharField(max_length=6,primary_key=True, verbose_name='Référence Article')
     nom  = models.CharField(max_length=30, verbose_name='Nom de l\'article')
-    prixHT = models.DecimalField(max_digits=6,decimal_places=3, verbose_name='Prix HT')
+    prixHT = models.DecimalField(max_digits=6,decimal_places=2, verbose_name='Prix HT')
     is_taxes = models.BooleanField(default=True, verbose_name='Taxes')
 #    duree = models.DurationField(default=timedelta(hours=0))
     
@@ -249,7 +249,62 @@ class Materiel(Item):
         default=itemptr
     )
     itemptr+=1
+    
+class Services(Item):
+    is_taxes = True
+    global itemptr
+    item_ptr = models.OneToOneField(
+        Item, on_delete=models.CASCADE,
+        parent_link=True,
+        default=itemptr
+    )
+    itemptr+=1
         
+class EspaceE(Item):
+    is_taxes = True
+    DUREES = (
+        (timedelta(weeks=1),'Semaine'),
+        (timedelta(days=31),'Mois'),
+        (timedelta(days=365),'Année'),
+    )
+#remplir automATIQUEMENT DES CHAMPS
+    duree = models.DurationField(choices=DUREES, verbose_name='Durée')
+    global itemptr
+    item_ptr = models.OneToOneField(
+        Item, on_delete=models.CASCADE,
+        parent_link=True,
+        default=itemptr
+    )
+    itemptr+=1
+    
+class BibliothequeOutils(Item):
+    is_taxes = True
+    DUREES = (
+        (timedelta(weeks=1),'Semaine'),
+        (timedelta(days=31),'Mois'),
+        (timedelta(days=365),'Année'),
+    )
+    duree = models.DurationField(choices=DUREES, verbose_name='Durée')
+    global itemptr
+    item_ptr = models.OneToOneField(
+        Item, on_delete=models.CASCADE,
+        parent_link=True,
+        default=itemptr
+    )
+    itemptr+=1
+    
+    
+class CertificatCadeau(Item):
+    is_taxes = False
+    global itemptr
+    item_ptr = models.OneToOneField(
+        Item, on_delete=models.CASCADE,
+        parent_link=True,
+        default=itemptr
+    )
+    itemptr+=1
+    
+    
 class Formation(Item):
     is_taxes = True
     date = models.DateField(verbose_name='Date de la formation')

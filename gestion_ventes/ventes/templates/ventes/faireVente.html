@@ -25,9 +25,10 @@
     
     <h2> Item commandés </h2>    
     <table>
-    <tr> <td> Item </td> <td> Quantité</td> <td> Prix </td> </tr>
+    <tr> <td> # Item </td> <td> Item </td> <td> Quantité</td> <td> Prix </td> </tr>
     {% for form in vente_formset %}
         <tr>
+            <td> {{ form.noVente }} </td>
             <td> {{ form.item }} </td>
             <td> {{ form.prixHTVendu }} </td>
         </tr>
