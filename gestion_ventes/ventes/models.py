@@ -43,7 +43,7 @@ class Vente(models.Model):
         nous permettra de reconnaître facilement les différents objets que 
         nous traiterons plus tard et dans l'administration
         """
-        return self.noVente + '--' + self.content_object.nom
+        return self.content_object.nom
 
 class Taxes(models.Model):
     tps = models.DecimalField(max_digits=5, decimal_places=4)

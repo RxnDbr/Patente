@@ -3,13 +3,6 @@
     <p><input type="submit" value="Retour à la page des transactions"></p>
 </form>
 
-<h1>{{trans.noTrans}}
-    {%if trans.payee %}
-        Payé
-    {%else%}
-        Pas payé   
-    {%endif%} 
-</h1>
 
 <form method="post" action="{% url "faire_vente" %}" id='vente_form'>
     {% csrf_token %}
@@ -17,28 +10,24 @@
     {%if trans.payee %}
         <fieldset disabled>  
     {%endif%} 
-    
+   
 
     {{ transac_form.management_form }}
     
     {{ vente_formset.management_form }}
+    
+    <h2>Vendeur : {{transac_form.benevole}}</h2>
     
     <h2> Client </h2>    
     Courriel : <input type="email" name="courriel" value="{{initial_courriel}}">{% csrf_token %}</input></br>
     Nom de famille : <input type="text" name ="nom" value="{{initial_nom}}">{% csrf_token %}</input></br>
     Prénom : <input type="text" name="prenom" value="{{initial_prenom}}">{% csrf_token %}</input></br>
     
-    <h2> Infos facture </h2>
-    <table>
-        <tr> Moyen de Paiement: {{transac_form.moyenPaiement}} </tr>
-        <tr> Vendeur : {{transac_form.benevole}} </tr>
-    </table>
-    
     <h2> Item commandés </h2>    
     <table>
+    <tr> <td> Item </td> <td> Quantité</td> <td> Prix </td> </tr>
     {% for form in vente_formset %}
         <tr>
-            <td> {{ form.noVente}} </td>
             <td> {{ form.item }} </td>
             <td> {{ form.prixHTVendu }} </td>
         </tr>
@@ -48,6 +37,24 @@
     
     <h2>Commentaire : </h2> 
     <p>{{transac_form.commentaire}}</p>
+    
+    <h2> PRIX </h2>
+    <table>
+        <tr> <td> Prix total HT : </td><td> {{totalPrixHT}}</td> </tr>
+        <tr> <td> TVQ : </td><td> {{totalTvq}}</td> </tr>
+        <tr> <td> TPS : </td><td> {{totalTps}}</td> </tr>
+        <tr> <td> Prix total TC : </td><td> {{totalPrixTC}}</td> </tr>
+    </table>
+
+    <h3>{{trans.noTrans}}
+        {%if trans.payee %}
+            Payé
+        {%else%}
+            Pas payé   
+        {%endif%} 
+    </h3>
+    
+    Moyen de Paiement: {{transac_form.moyenPaiement}}
     
     <input type="submit" value="Générer prix" name="calcul"/>
     <input type="submit" value="Payer" name="payer"/>
@@ -63,8 +70,4 @@
         
 </form>
 
-Prix total HT : {{totalPrixHT}}
-TVQ : {{totalTvq}}
-TPS: {{totalTps}}
-Prix TC : {{totalPrixTC}}
 

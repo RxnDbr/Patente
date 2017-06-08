@@ -9,8 +9,7 @@ for membre in inp:
     c.nom = membre['Nom']
     c.prenom = membre['Prenom']
     c.courriel = membre['Courriel']
-    if len(models.Client.objects.filter(courriel=c.courriel))>0:
-        c.save()    
+    c.save()    
     m = models.Membre()
     m.client = c
     m.idMembre = membre['Numero']
