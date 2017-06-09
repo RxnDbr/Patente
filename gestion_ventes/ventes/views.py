@@ -161,7 +161,7 @@ def faire_vente(request):
                             if prixHT=='0' :
                                 vente.prixHTVendu = vente.content_object.prixHT
                             else:
-                                vente.prixHTVendu = float(prixHT)
+                                vente.prixHTVendu = prixHT
                             vente.noTrans = transac
                             vente.save()  
                                            

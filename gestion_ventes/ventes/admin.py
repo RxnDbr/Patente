@@ -109,3 +109,5 @@ admin.site.register(Entreposage, ItemAdmin)
 admin.site.register(Materiel, ItemAdmin)
 admin.site.register(Formation, ItemAdmin)
 admin.site.register(ContributionVolontaire, ItemAdmin)
+
+admin.site.register(Visites)

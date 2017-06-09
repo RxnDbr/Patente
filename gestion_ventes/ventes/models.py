@@ -142,18 +142,18 @@ class Item(models.Model):
             tps =  self.prixHT*(taxes.tps)
         else:
             tps = 0
-        return tps
+        return round(tps,2)
         
     def calculTvq(self, taxes):
         if self.is_taxes:
             tvq =  self.prixHT*(taxes.tvq)
         else:
             tvq = 0
-        return tvq
+        return round(tvq,2)
    
     def calculPrixTTC(self,taxes):
         prixTTC = self.prixHT + calculTps(taxes) + calculTvq(taxes)
-        return prixTTC
+        return round(prixTTC,2)
     
     def dateFinValidite(self, vente):
         try:
@@ -320,4 +320,25 @@ class Formation(Item):
     )
     itemptr+=1
     
+    
+    
+class Visites(models.Model):
+    RAISON = (
+        ('atelier_bois', 'Utiliser l atelier bois'),
+        ('atelier_metal', 'Utiliser l atelier metal'),
+        ('suivre_formation', 'Suivre une formation'),
+        ('biblio', 'Utiliser la bibliothèque d outils'),
+        ('espace_e', 'Espace E'),
+        ('donner', 'Faire un don a la Patente'),
+        ('visiter', 'Visiter/Se renseigner'),
+        ('benevoler', 'Faire du bénévolat/travailler'),
+        ('former', 'Donner une formation'),
+        ('autre', 'Autre'))
+        
+    date = models.DateTimeField(auto_now_add=True, auto_now=False,
+                                verbose_name="Date d arrivée")
+    benevole = models.ForeignKey('Benevole')
+    client = models.ForeignKey('Client')
+    raison = models.CharField(max_length=25,choices=RAISON, verbose_name='Raison de la visite')
+    commentaire = models.TextField(blank=True, null=True)
 
