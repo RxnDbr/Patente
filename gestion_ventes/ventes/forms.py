@@ -1,10 +1,11 @@
+from datetime import date
 from django import forms
-from .models import Vente, Transaction, Item
+from .models import Vente, Transaction, Item, Formation
 
 class VenteForm(forms.ModelForm):
 #    l_sc = Item.__subclasses__() #liste de sous classes d'Item
     CHOICES = ((None,'------'),)
-    for it in Item.objects.all():
+    for it in Item.objects.filter(archive=False):
         CHOICES+=((it.noRef,it),)
     item = forms.ChoiceField(choices=CHOICES)
     noVente = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}))

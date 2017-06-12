@@ -188,12 +188,10 @@ def modifier_transaction(request):
     if request.POST and 'transaction' in request.POST:
         form = ChoixTransForm(request.POST)
         noTrans = request.POST['transaction']
-        b = 1
         return redirect(faire_vente)
     else:
         form = ChoixTransForm()
-        b = 2
-    return render(request, 'ventes/transactions.html', {'form':form, 'b':b})
+    return render(request, 'ventes/transactions.html', {'form':form})
     
          
     

@@ -15,18 +15,16 @@ def get_generic_foreign_key_filter(title, parameter_name=u'', separator='-', con
 
         def lookups(self, request, model_admin):
             qs = model_admin.model.objects.all()\
-                .order_by(content_type_id_field, object_id_field)\
-                .values_list(content_type_id_field, object_id_field).distinct()
+                .order_by(content_type_id_field)\
+                .values_list(content_type_id_field).distinct()
             return [
                 (
-                    '{1}{0.separator}{2}'.format(self, *content_type_and_obj_id_pair),
+                    '{1}{0.separator}{2}'.format(self, *content_type_id),
                     ContentType.objects
-                        .get(id=content_type_and_obj_id_pair[0])
+                        .get(id=content_type_id)
                         .model_class()
-                        .objects.get(pk=content_type_and_obj_id_pair[1])
-                        .__str__()
                 )
-                for content_type_and_obj_id_pair
+                for content_type_id
                 in qs
             ]
 
@@ -45,11 +43,12 @@ def get_generic_foreign_key_filter(title, parameter_name=u'', separator='-', con
 # Register your models here.
 
 class MembreAdmin(admin.ModelAdmin):
-    list_display = ('idMembre', 'client','telephone', 'cp')
+    list_display = ('idMembre','client','telephone', 'cp')
 #    list_filter = ('cp',)
     date_hierarchy = 'dateAdh'
     ordering = ('idMembre',)
     search_fields = ('idMembre','client__nom', 'client__prenom', 'client__courriel', 'cp')
+    
     
 class BenevoleAdmin(admin.ModelAdmin):
     list_display = ('membre', 'get_tel')
@@ -64,7 +63,7 @@ class VenteAdmin(admin.ModelAdmin):
     fields=('noVente','object_id','noTrans','prixHTVendu')
     list_display = ('noVente','content_object', 'get_client','get_payee', 'get_dateFin','prixHTVendu')
     search_fields = ('noTrans__client__courriel','noTrans__client__nom', 'noTrans__client__prenom')
-    list_filter = (get_generic_foreign_key_filter('Articles'),)
+    list_filter = (get_generic_foreign_key_filter('Articles'),'content_type')
 
     def get_client(self, obj):
         return obj.noTrans.client.courriel
@@ -92,7 +91,13 @@ class TransactionAdmin(admin.ModelAdmin):
     search_fields = ('client__courriel','client__nom', 'client__prenom')
     
 class ItemAdmin(admin.ModelAdmin):
-    list_display = ('noRef','nom','prixHT')
+    list_display = ('nom','prixHT', 'get_TC')
+    search_fields = ('nom',)
+    list_filter = ('nom', 'archive')
+    
+    def get_TC(self, obj):
+        taxes = Taxes.objects.all()[0]
+        return obj.calculPrixTTC(taxes)
 
 admin.site.register(Client)
 admin.site.register(Membre, MembreAdmin)
@@ -102,12 +107,13 @@ admin.site.register(Vente, VenteAdmin)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Taxes, TaxesAdmin)
 
-admin.site.register(Item)
+admin.site.register(Item, ItemAdmin)
 admin.site.register(Adhesion, ItemAdmin)
 admin.site.register(AbonnementAtelier, ItemAdmin)
 admin.site.register(Entreposage, ItemAdmin)
 admin.site.register(Materiel, ItemAdmin)
 admin.site.register(Formation, ItemAdmin)
 admin.site.register(ContributionVolontaire, ItemAdmin)
+admin.site.register(Services, ItemAdmin)
 
 admin.site.register(Visites)

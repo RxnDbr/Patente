@@ -135,6 +135,7 @@ class Item(models.Model):
     nom  = models.CharField(max_length=30, verbose_name='Nom de l\'article')
     prixHT = models.DecimalField(max_digits=6,decimal_places=2, verbose_name='Prix HT')
     is_taxes = models.BooleanField(default=True, verbose_name='Taxes')
+    archive = models.BooleanField(default=False, verbose_name='Archivé')
 #    duree = models.DurationField(default=timedelta(hours=0))
     
     def calculTps(self, taxes):
@@ -152,7 +153,7 @@ class Item(models.Model):
         return round(tvq,2)
    
     def calculPrixTTC(self,taxes):
-        prixTTC = self.prixHT + calculTps(taxes) + calculTvq(taxes)
+        prixTTC = self.prixHT + self.calculTps(taxes) + self.calculTvq(taxes)
         return round(prixTTC,2)
     
     def dateFinValidite(self, vente):
@@ -168,7 +169,10 @@ class Item(models.Model):
         nous permettra de reconnaître facilement les différents objets que 
         nous traiterons plus tard et dans l'administration
         """
-        return self.nom  
+        return self.nom 
+        
+    def type_test(self):
+        return type(self).__name__
           
     class Meta:
         abstract=False
@@ -308,7 +312,8 @@ class CertificatCadeau(Item):
 class Formation(Item):
     is_taxes = True
     date = models.DateField(verbose_name='Date de la formation')
-    formateur = models.CharField(max_length=30, verbose_name = 'Formateur')
+    heure = models.CharField(max_length=5, default='18h')
+    formateur = models.ForeignKey('Formateur')
     cout = models.DecimalField(max_digits=6,decimal_places=2, verbose_name='Coût')
     jauge = models.IntegerField(verbose_name='Jauge')
     duree = models.DurationField(verbose_name='Durée')
@@ -319,7 +324,6 @@ class Formation(Item):
         default=itemptr
     )
     itemptr+=1
-    
     
     
 class Visites(models.Model):
