@@ -131,7 +131,7 @@ class Formateur(models.Model):
         return self.courriel +'--'+ self.prenom + self.nom 
 
 class Item(models.Model):
-    noRef = models.CharField(max_length=6,primary_key=True, verbose_name='Référence Article')
+    noRef = models.AutoField(primary_key=True)
     nom  = models.CharField(max_length=30, verbose_name='Nom de l\'article')
     prixHT = models.DecimalField(max_digits=6,decimal_places=2, verbose_name='Prix HT')
     is_taxes = models.BooleanField(default=True, verbose_name='Taxes')

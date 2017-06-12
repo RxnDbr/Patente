@@ -4,11 +4,21 @@ from .models import Vente, Transaction, Item, Formation
 
 class VenteForm(forms.ModelForm):
 #    l_sc = Item.__subclasses__() #liste de sous classes d'Item
-    CHOICES = ((None,'------'),)
-    for it in Item.objects.filter(archive=False):
-        CHOICES+=((it.noRef,it),)
-    item = forms.ChoiceField(choices=CHOICES)
-    noVente = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}))
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for it in Item.objects.filter(archive=False):
+            formation = Formation.objects.filter(noRef=it.noRef)
+            if len(formation):
+                if formation[0].date<date.today():
+                    formation[0].archive=True
+                    formation[0].save()
+                    
+        CHOICES = ((None,'------'),)
+        for it in Item.objects.filter(archive=False):
+            CHOICES+=((it.noRef,it),)
+        self.fields['item'] = forms.ChoiceField(choices=CHOICES)
+        self.fields['noVente'] = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}))
     class Meta:
         model = Vente
         fields = ('prixHTVendu',)
