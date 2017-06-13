@@ -155,7 +155,7 @@ def faire_vente(request):
                             existe_vente[0].delete()
                         for classe in Item.__subclasses__():
                             for elmt in classe.objects.all():
-                                if elmt.noRef==noItem:
+                                if elmt.noRef==eval(noItem):
                                     vente.content_object= elmt
                         if vente.content_object :
                             if prixHT=='0' :

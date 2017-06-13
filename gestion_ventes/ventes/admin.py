@@ -50,16 +50,17 @@ class MembreAdmin(admin.ModelAdmin):
 
     
 class BenevoleAdmin(admin.ModelAdmin):
-    list_display = ('membre', 'get_tel')
+    list_display = ('membre', 'get_tel', 'get_rabais', 'commentaire')
     def get_tel(self, obj):
         return obj.membre.telephone
+    def get_rabais(self,obj):
+        return obj.compensationHeure * obj.nbHeuresCum - obj.rabaisUtilise 
         
             
 class FormateurAdmin(admin.ModelAdmin):
     list_display = ('nom', 'prenom', 'courriel','telephone')
     
 class VenteAdmin(admin.ModelAdmin):
-    fields=('noVente','object_id','noTrans','prixHTVendu')
     list_display = ('noVente','content_object', 'get_client','get_payee', 'get_dateFin','prixHTVendu')
     ordering = ('noVente',)
     search_fields = ('noTrans__client__courriel','noTrans__client__nom', 'noTrans__client__prenom')
@@ -99,10 +100,13 @@ class ItemAdmin(admin.ModelAdmin):
         taxes = Taxes.objects.all()[0]
         return obj.calculPrixTTC(taxes)
         
+#def VisiteAdmin(admin.ModelAdmin):
+#    list_display = ('date','benevole','client','raison')
+        
 
 admin.site.register(Client)
 admin.site.register(Membre, MembreAdmin)
-admin.site.register(Benevole)#, BenevoleAdmin)
+admin.site.register(Benevole, BenevoleAdmin)
 admin.site.register(Formateur, FormateurAdmin)
 admin.site.register(Vente, VenteAdmin)
 admin.site.register(Transaction, TransactionAdmin)
@@ -117,4 +121,4 @@ admin.site.register(Formation, ItemAdmin)
 admin.site.register(ContributionVolontaire, ItemAdmin)
 admin.site.register(Services, ItemAdmin)
 
-admin.site.register(Visites)
+admin.site.register(Visites)#, VisiteAdmin)
