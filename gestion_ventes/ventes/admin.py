@@ -4,7 +4,9 @@ from datetime import date
 from django.contrib.contenttypes.models import ContentType
 
 def get_generic_foreign_key_filter(title, parameter_name=u'', separator='-', content_type_id_field='content_type_id', object_id_field='object_id') :
-
+    '''
+    permet d'afficher les différents types d'items vendus
+    '''
     class GenericForeignKeyFilter(admin.SimpleListFilter):
 
         def __init__(self, request, params, model, model_admin):
@@ -38,12 +40,9 @@ def get_generic_foreign_key_filter(title, parameter_name=u'', separator='-', con
                 return queryset
 
     return GenericForeignKeyFilter
-    
-# Register your models here.
 
 class MembreAdmin(admin.ModelAdmin):
     list_display = ('idMembre', 'client','telephone', 'cp')
-#    list_filter = ('cp',)
     date_hierarchy = 'dateAdh'
     ordering = ('idMembre',)
     search_fields = ('idMembre','client__nom', 'client__prenom', 'client__courriel', 'cp')
@@ -106,8 +105,8 @@ class ItemAdmin(admin.ModelAdmin):
         taxes = Taxes.objects.all()[0]
         return obj.calculPrixTTC(taxes)
         
-#def VisiteAdmin(admin.ModelAdmin):
-#    list_display = ('date','benevole','client','raison')
+class VisiteAdmin(admin.ModelAdmin):
+    list_display = ('date','client','benevole','raison')
         
 
 admin.site.register(Client, ClientAdmin)
@@ -131,5 +130,4 @@ admin.site.register(EspaceE, ItemAdmin)
 admin.site.register(BibliothequeOutils, ItemAdmin)
 admin.site.register(CertificatCadeau, ItemAdmin)
 
-
-admin.site.register(Visites)#, VisiteAdmin)
+admin.site.register(Visites, VisiteAdmin)

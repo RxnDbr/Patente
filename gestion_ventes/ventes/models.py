@@ -341,6 +341,9 @@ class ContributionVolontaire(Item):
     )
     itemptr+=1
     
+    class Meta:
+        verbose_name_plural = 'Contributions volontaires'
+    
 class Adhesion(Item):
     is_taxes = False
     duree = models.DurationField(default=timedelta(days=10000)) #infini  
@@ -407,6 +410,9 @@ class EspaceE(Item):
     )
     itemptr+=1
     
+    class Meta:
+        verbose_name_plural = 'Espace E'
+    
 class BibliothequeOutils(Item):
     is_taxes = True
     DUREES = (
@@ -427,6 +433,9 @@ class BibliothequeOutils(Item):
     )
     itemptr+=1
     
+    class Meta:
+        verbose_name_plural = 'Bibliotheque d\'outils'
+    
     
 class CertificatCadeau(Item):
     is_taxes = False
@@ -441,6 +450,9 @@ class CertificatCadeau(Item):
         default=itemptr
     )
     itemptr+=1
+    
+    class Meta:
+        verbose_name_plural = 'Certificats cadeau'
     
     
 class Formation(Item):

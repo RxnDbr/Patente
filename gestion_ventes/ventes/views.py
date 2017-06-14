@@ -1,4 +1,5 @@
 # Create your views here.
+from datetime import date
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
@@ -6,23 +7,30 @@ from django.shortcuts import render, redirect, render_to_response
 from django.forms import modelformset_factory,inlineformset_factory
 from django.db import IntegrityError, transaction
 from .models import *
-from .forms import VenteForm, TransactionForm, ChoixTransForm
-from datetime import date
+from .forms import *
 
 def genererNoTrans():
+    '''
+    genere un numero de transaction en fonction de la date
+    '''
     trans = Transaction.objects.all()
+    #si aucune transaction du tout, en crée une avec la date d aujourd hui suivi de '000'
     if len(trans)==0:
         str_date = date.today().strftime("%Y%m%d")
         noTrans = str_date+'000'
+    #sinon, prend le dernier numero et lui ajoute un
     else:
-        noTrans = trans.last().noTrans
+        noTrans = str(eval(trans.last().noTrans)+1)
     return noTrans
 
 noTrans = genererNoTrans()
-taxes = Taxes.objects.all().last()
+#prend la taxe en vigueur
+taxes = Taxes.objects.order_by('date').last()
 
-    
 def ajouter_transaction(request):
+    '''
+    crée un nouveau numero de transaction 
+    '''
     global noTrans
     dateTrans = date.today()
     str_date = dateTrans.strftime("%Y%m%d")
@@ -39,151 +47,158 @@ def ajouter_transaction(request):
     return render(request, 'ventes/transactions.html', locals())
 
 def faire_vente(request):
-    trans = Transaction.objects.filter(noTrans=noTrans)
-    a = []
-    if trans:
-        a.append(11)
-        trans = trans[0]
+    '''
+    fonction qui permet d enregistrer une nouvelle transaction avec ses ventes
+    '''
+    
+    
+    #*************************************************************************************************************************************
+    #AFFICHAGE DES DONNEES INITIALES   
+    
+    #-----------------------------------------------------
+    ########### TRANSACTIONS #############
+    
+    #recupere le numero de trans global de views.py
+    try:
+        trans = Transaction.objects.get(noTrans=noTrans)
         initial_trans = {'moyenPaiement':trans.moyenPaiement, 'benevole':trans.benevole, 'commentaire':trans.commentaire}
         initial_nom= trans.client.nom
         initial_prenom = trans.client.prenom
         initial_courriel = trans.client.courriel  
         existant = True    
-    else:
-        a.append(12)
+        
+    #dans le cas ou aucune transaction ne correspond au numero généré
+    except:
         trans = Transaction(noTrans=noTrans, client=Client('','',''), moyenPaiement='', benevole=Benevole.objects.all()[0], commentaire='')
         initial_trans =  {'moyenPaiement':None, 'benevole':None, 'commentaire':''}
         initial_nom = initial_prenom = initial_courriel = ''
         existant = False
         
-        
     
-    #MANAGE INITIAL DISPLAY  
+    #--------------------------------------------------    
+    ############ VENTES ###################
+    
     ventes_trans = Vente.objects.filter(noTrans=trans)
-    ventes_data = []
     totalPrixHT = totalTps = totalTvq = 0
+    # prend toutes les ventes d une meme transaction
     for vente in ventes_trans:
-        ventes_data.append({'content_object':vente.content_object, 'noVente':vente.noVente, 'prixHTVendu':vente.prixHTVendu})
+        #verifie au cas ou que ce qui est acheté herite bien de item
         if isinstance(vente.content_object, Item):
+            #calcul le montant total des taxes pour tous les items commandés 
             totalTps+= vente.content_object.calculTps(taxes)
             totalTvq+= vente.content_object.calculTvq(taxes)
-#    a.append(ventes_data)
-    max_num = 10
+            
+    #ne peut acheter que 10 items par transaction car je n ai pas reussi a gerer l affichage de plus d elements
+    # en utilisant du js, on pourrait supprimer cette variable      
+    max_num = 10 
     initial_vente =  []
     for indice_vente in range(max_num): 
-        if indice_vente < len(ventes_data):
-            a.append(10)
-            content_object = ventes_data[indice_vente]['content_object']
-            noRef = ventes_data[indice_vente]['content_object'].noRef
-            noVente = ventes_data[indice_vente]['noVente'] 
-            prixHTVendu = ventes_data[indice_vente]['prixHTVendu'] 
+        if indice_vente < len(ventes_trans):
+            # s il existe une vente associé a cette indice dans la base de données
+            content_object = ventes_trans[indice_vente].content_object
+            noRef = ventes_trans[indice_vente].content_object.noRef
+            noVente = ventes_trans[indice_vente].noVente
+            prixHTVendu = ventes_trans[indice_vente].prixHTVendu 
         else : 
             noRef = None
             noVente = trans.noTrans+'0'+str(indice_vente)
             prixHTVendu = 0 
         initial_vente.append({'item' : noRef, 'noVente':noVente, 'prixHTVendu':prixHTVendu})  
-        totalPrixHT+= prixHTVendu
-    a.append(initial_vente)      
+        totalPrixHT+= prixHTVendu  
 
     totalPrixTC  = totalPrixHT + totalTvq + totalTps
+    
+    #**************************************************************************************************************
     
     VenteFormSet = modelformset_factory(Vente,form=VenteForm, extra=max_num, max_num=max_num, can_delete=False)   
     envoi = False
     if request.method == 'POST':
-        a.append(1)
         transac_form = TransactionForm(request.POST, prefix='transaction', initial=initial_trans)
-        #MANAGE INPUT DATA
-        i=0
         if "annuler" in request.POST:
-            existe_trans = Transaction.objects.filter(noTrans=trans.noTrans)
-            for existe in existe_trans:
-                existe.delete()
+            #si le benevole effectue l action pour supprimer une transaction
+            try:
+                Transaction.objects.get(noTrans=trans.noTrans).delete()
+            except:
+                pass
+            # genere un nouveau numero de transaction car l actuel est supprimé             
             global noTrans
             noTrans =genererNoTrans()
-#            return render({}, 'ventes/modifier_transaction.html', locals())
-            return redirect(modifier_transaction)
-            
-        if "nom" in request.POST and "prenom" in request.POST:#and "nom" and "prenom" in request.POST:          
+            return redirect(modifier_transaction) 
+                                         
+        if "nom" in request.POST and "prenom" in request.POST:
+            #si le benevole a rempli les champs pour le nom et le prenom          
             client_nom = request.POST['nom']
             client_prenom = request.POST['prenom']
-            client = Client.objects.filter(nom=client_nom,prenom=client_prenom)
-            if client:
-                client = client[0]
-                a.append('connait')
-            else:
+            try:
+                #va chercher s il existe dans la base un client qui a le nom et prenom rentré dans le formulaire
+                client = Client.objects.get(nom=client_nom,prenom=client_prenom)
+            except:
+                #si ce client n exite pas encore, alors, on le crée
                 client_courriel = request.POST["courriel"]
                 client = Client(nom=client_nom, prenom=client_prenom, courriel=client_courriel)
-                client.save()  
-                a.append('connait pas')          
+                client.save()     
             
         if transac_form.is_valid():
-            a.append(7)
             transac = transac_form.save(commit=False)
             transac.noTrans = trans.noTrans
             transac.client = client
             transac.moyenPaiement = transac_form.cleaned_data['moyenPaiement']
             transac.benevole = transac_form.cleaned_data['benevole']
                 
-            existe_trans = Transaction.objects.filter(noTrans=trans.noTrans)
-            for existe in existe_trans:
+            try:
+                #s il existe déjà dans la base une transaction avec le numero ici attribué
+                # alors on supprime la transaction pour l ecraser avec les nouvelles données
+                # on ne garde que l info si la transaction etait payee ou non
+                existe_trans = Transaction.objects.get(noTrans=trans.noTrans)
                 transac.payee=existe.payee
-                existe.delete()
+                existe_trans.delete()
+            except : 
+                pass
                         
             if "payer" in request.POST:
                 transac.payee=True
-        
             transac.save() 
-            vente_formset = VenteFormSet(request.POST, queryset=Vente.objects.none(), initial=initial_vente,prefix='vente')
-            a.append(request.POST)  
+            
+            vente_formset = VenteFormSet(request.POST, queryset=Vente.objects.none(), initial=initial_vente,prefix='vente') 
                        
-#            if vente_formset.is_valid(): 
             for vente_form in vente_formset:
-                if vente_form.is_valid():
-                    a.append(6)                                  
+                if vente_form.is_valid():               
+                    noVente = request.POST[vente_formset.prefix+'-'+str(i)+'-noVente']               
                     noItem = request.POST[vente_formset.prefix+'-'+str(i)+'-item']
-                    noVente = request.POST[vente_formset.prefix+'-'+str(i)+'-noVente']
                     prixHT = request.POST[vente_formset.prefix+'-'+str(i)+'-prixHTVendu']
-                    a.append(prixHT)
-                    i+=1
                     if noItem:
-                        a.append(5)
+                        #si le benevole a rentré un item dans la ligne
                         vente = vente_form.save(commit=False)
                         vente.noVente = noVente
-                        existe_vente = Vente.objects.filter(noVente=noVente)
-                        if existe_vente:
-                            existe_vente[0].delete()
+                        try:
+                            #supprime les ventes qui pourraient avoir le meme numero
+                            Vente.objects.get(noVente=noVente).delete()
+                        except:
+                            pass
+                        
+                        #regarde tous les items existants a partir des classes filles    
                         for classe in Item.__subclasses__():
                             for elmt in classe.objects.all():
                                 if elmt.noRef==eval(noItem):
                                     vente.content_object= elmt
                         if vente.content_object :
+                            #s il a trouvé un item qui match
                             if prixHT=='0' :
                                 vente.prixHTVendu = vente.content_object.prixHT
                             else:
                                 vente.prixHTVendu = prixHT
                             vente.noTrans = transac
-                            vente.save()  
-                                           
-                        
-#                        vente.item = ContentType.objects.get_for_model(type()    
-#                        vente.item = ct.get_object_for_this_type(pk=object_id) 
-#                        vente.item = Item.objects.get(noRef=noItem)
-
-                else:
-                    a.append(4)
-
+                            vente.save() 
+            #redirect pour supprimer tous les affichages indesirables
             return redirect(faire_vente)
     else:
-        a.append(3)
-        a.append(request)
         transac_form = TransactionForm(prefix='transaction', initial=initial_trans)
         vente_formset = VenteFormSet(queryset=Vente.objects.none(), initial=initial_vente, prefix='vente') 
-
-#Eleve.objects.aggregate(Avg('moyenne'))
+        
     return render(request, 'ventes/faireVente.html', locals())
     
 def modifier_transaction(request):
-    global noTrans, b
+    global noTrans
     if request.POST and 'transaction' in request.POST:
         form = ChoixTransForm(request.POST)
         noTrans = request.POST['transaction']
@@ -191,102 +206,4 @@ def modifier_transaction(request):
     else:
         form = ChoixTransForm()
     return render(request, 'ventes/transactions.html', {'form':form})
-    
-         
-    
-'''
-    if vente_formset.is_valid():
-        nvl_vente = []
-        for vente_form in vente_formset:
-            item = vente_form.cleaned_data.get('item')
-            if item:
-                noVentes = []
-                for vente in vente_formet:
-                    noVentes.append(vente.noVente)
-                if not noVentes:
-                    dernierNoVente = trans.noTrans + '000'
-                else:
-                    dernierNoVente = max(noVentes)
-                nbVente = eval(dernierNoVente[-2:])
-                if nbVente<9:
-                    noVente = dernierNoVente[:-1] + str(nbVente+1)
-                else : 
-                    noVente = dernierNoVente[:-2] + str(nbVente+1)
-                nvl_vente.append(Vente(noVente=noVente, noTrans=trans,item=item))
-                try:
-                    with transaction.atomic():
-                        #Replace the old with the new
-                        Vente.objects.filter(noTrans=noTrans).delete()
-                        Vente.objects.bulk_create(new_links)
-                        messages.success(my_post_dict, 'You have updated your profile.')
-
-                except IntegrityError: #If the transaction failed
-                    messages.error(my_post_dict, 'There was an error saving your profile.')
-                    return redirect(reverse('profile-settings'))'''
-#    return render(request, 'app_bdd/faireVente.html', {'ventes_t': ventes_trans,'trans':trans,'formset': vente_formset})
-
-'''
-    request_post_copy = request.POST.copy()
-    request_post_copy.update({
-        'form-TOTAL_FORMS': 1,
-        'form-INITIAL_FORMS': 0,
-        'form-MAX_NUM_FORMS': 5,
-    })
-    
-    
-    
-
-#    VenteFormSet = inlineformset_factory(Transaction,Vente, fields=('item',), extra=3)
-    data = {
-    'form-TOTAL_FORMS': '2',
-    'form-INITIAL_FORMS': '0',
-    'form-MAX_NUM_FORMS': ''}
-    if request.method=='POST':
-#        trans_form = TransactionForm(data.update(request.POST), instance=trans, prefix='trans')
-        formset = VenteFormSet(request.POST, instance=trans, prefix='vente')
-    if trans_form.is_valid() and formset.is_valid():
-        r = trans_form.save(commit=False)
-        formset.save()
-        r.save()
-        
-    return render(request, 'app_bdd/faireVente.html', {'trans_form':trans_form,'formset': formset})'''
-
-'''    data = {
-    'form-TOTAL_FORMS': '5',
-    'form-INITIAL_FORMS': '0',
-    'form-MAX_NUM_FORMS': ''}
-    VenteFormSet = modelformset_factory(Vente, fields=('item',))
-    formset = VenteFormSet(request.POST or None, request.FILES)
-    if formset.is_valid():
-        ventes = formset.save(commit=False)
-        for form in ventes:
-            vente = form.save(commit=False)
-            item = form.cleaned_data['item']
-            prixHT = item.prixHT
-            taxes = Taxes.objects.order_by('date')[0]
-            prixTC = item.calculPrixTTC(taxes)
-            dernierNoTrans = Transaction.objects.order_by('dateTrans')[0].noTrans 
-            noTrans = str(dernierNoTrans)
-            nbVentesParTrans = len(Vente.objects.filter(noVente__contains=noTrans))
-            if nbVentesParTrans<9:
-                noVente = noTrans + '0' +str(nbVentesParTrans+1)
-            else:
-                noVente = noTrans + nbVentesParTrans
-            vente.noVente = noVente
-            vente.noTrans = Transaction.objects.get(noTrans=noTrans)
-            vente.save()
-        formset.save()'''
-
-'''def ajoutMembre(request):
-    form = AjoutMembre(request.POST or None)
-    if form.is_valid():
-        nom =  form.cleaned_data['nom']
-        prenom =  form.cleaned_data['prenom']
-        courriel =  form.cleaned_data['courriel']
-        cp =  form.cleaned_data['cp']
-        telephone =  form.cleaned_data['telephone']
-        dateAdh = form.cleaned_data['dateAdh']
-        idMembre = '''
-        
-     
-
+ 

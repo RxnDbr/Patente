@@ -2,39 +2,32 @@ from datetime import date
 from django import forms
 from .models import Vente, Transaction, Item, Formation, Formateur
 
-
-dateAjd = date.today() 
+#permet de mettre à jour les informations quotidiennement
+dateAjd = date(2017,6,13) 
 
 class VenteForm(forms.ModelForm):
-#    l_sc = Item.__subclasses__() #liste de sous classes d'Item
-    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for it in Item.objects.filter(archive=False):
-            formation = Formation.objects.filter(noRef=it.noRef)
-            if len(formation):
-                if formation[0].date<date.today():
-                    formation[0].archive=True
-                    formation[0].save()
-                    
+        global dateAjd
+        #permet de faire des modifications à tous les jours
+        #mettre cette fonction ici se justifie par le fait que le form se recharge a tous les jours d utilisations
+        if date.today()>dateAjd:
+            dateAjd = date.today()
+            #permet d archiver automatiquement les formations qui sont passées
+            for formation in Formation.objects.filter(archive=False, date__lt=dateAjd):
+                formation.archive=True
+                formation.save()
+            # permet de mettre à jour les heures de travail des formateurs en fonction des formations données
+            formateurs = Formateur.objects.all()
+            for formateur in formateurs:
+                formateur.nbHeuresCum = formateur.calculNbHeures()
+                formateur.save()
+                                
         CHOICES = ((None,'------'),)
         for it in Item.objects.filter(archive=False):
             CHOICES+=((it.noRef,it),)
         self.fields['item'] = forms.ChoiceField(choices=CHOICES)
         self.fields['noVente'] = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}))
-        
-        global dateAjd
-        if date.today()>dateAjd:
-        
-            #pour calculer le nb d heure cumulées d un formateur, je mets la fonction ici
-            # pour que le calcul se reactualise a tous les jours
-            
-            formateurs = Formateur.objects.all()
-            for formateur in formateurs:
-                formateur.nbHeuresCum = formateur.calculNbHeures()
-                formateur.save()
-                
-            dateAjd = date.today()
         	
     class Meta:
         model = Vente
