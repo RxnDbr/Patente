@@ -50,11 +50,17 @@ class MembreAdmin(admin.ModelAdmin):
 
     
 class BenevoleAdmin(admin.ModelAdmin):
-    list_display = ('membre', 'get_tel', 'get_rabais', 'commentaire')
+    list_display = ('membre', 'get_tel', 'get_rabais', 'disponibilites')
+    search_fields = ('membre__client__nom', 'membre__client__prenom', 'disponibilites','domaine1','domaine2', 'domaine3','commentaire')
     def get_tel(self, obj):
         return obj.membre.telephone
     def get_rabais(self,obj):
         return obj.compensationHeure * obj.nbHeuresCum - obj.rabaisUtilise 
+        
+class ClientAdmin(admin.ModelAdmin):
+    list_display = ('nom','prenom','courriel')
+    search_fields = ('nom','prenom','courriel')
+    ordering = ('nom','prenom' )
         
             
 class FormateurAdmin(admin.ModelAdmin):
@@ -104,10 +110,11 @@ class ItemAdmin(admin.ModelAdmin):
 #    list_display = ('date','benevole','client','raison')
         
 
-admin.site.register(Client)
+admin.site.register(Client, ClientAdmin)
 admin.site.register(Membre, MembreAdmin)
 admin.site.register(Benevole, BenevoleAdmin)
 admin.site.register(Formateur, FormateurAdmin)
+
 admin.site.register(Vente, VenteAdmin)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Taxes, TaxesAdmin)
@@ -120,5 +127,9 @@ admin.site.register(Materiel, ItemAdmin)
 admin.site.register(Formation, ItemAdmin)
 admin.site.register(ContributionVolontaire, ItemAdmin)
 admin.site.register(Services, ItemAdmin)
+admin.site.register(EspaceE, ItemAdmin)
+admin.site.register(BibliothequeOutils, ItemAdmin)
+admin.site.register(CertificatCadeau, ItemAdmin)
+
 
 admin.site.register(Visites)#, VisiteAdmin)

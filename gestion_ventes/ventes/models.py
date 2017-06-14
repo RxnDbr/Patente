@@ -89,6 +89,10 @@ class Taxes(models.Model):
     tvq = models.DecimalField(max_digits=5, decimal_places=4)
     date = models.DateTimeField(auto_now_add=True, auto_now=False,
                                 verbose_name="Date de transaction")
+
+
+    class Meta: 
+        verbose_name_plural = 'Taxes'
                                 
 ###########################################################
 ########### TOUT CE QUI CONCERNE LES GENS   ###############
@@ -100,12 +104,13 @@ class Client(models.Model):
     afin de pouvoir le contacter si besoin (notamment pour des cas 
     de fin d'abonnement, etc.)
     '''
-    nom = models.CharField(max_length=30, verbose_name='Nom')
+    nom = models.CharField(max_length=30, verbose_name='Nom de famille ou de l\'organisation')
     prenom = models.CharField(max_length=30, verbose_name='Prénom')
     courriel = models.EmailField(max_length=50, verbose_name='Courriel')
     
     def __str__(self):
-        return self.courriel +'--'+ self.prenom + self.nom 
+        return self.nom + ' ' + self.prenom + '--' + self.courriel
+        
                                     
 class Membre(models.Model):
     '''
@@ -122,7 +127,7 @@ class Membre(models.Model):
     dateAdh = models.DateField(verbose_name='Date d\'Adhésion')    
 
     def __str__(self):
-        return self.client.courriel +'--'+ self.client.prenom + self.client.nom 
+        return self.client.nom +' '+ self.client.prenom + '--' +self.client.courriel
     
 class Benevole(models.Model):
     '''
@@ -147,11 +152,11 @@ class Benevole(models.Model):
     compensationHeure = models.DecimalField(max_digits=6,decimal_places=2, verbose_name='Compensation à l\'heure', default=10.35)
     nbHeuresCum = models.IntegerField(verbose_name='Nombre d\'heures de bénévolat cumulées')
     rabaisUtilise = models.DecimalField(max_digits=6,decimal_places=2, verbose_name='Rabais Utilisé')
-    
+    disponibilites = models.TextField(blank=True, null=True)
     # pour avoir des renseignements sur les interets des bénévoles
-    domaine1 = models.CharField(max_length=15,choices=DOMAINES, verbose_name='Domaine 1')
-    domaine2 = models.CharField(max_length=15,choices=DOMAINES, verbose_name='Domaine 2', blank=True)
-    domaine3 = models.CharField(max_length=15,choices=DOMAINES, verbose_name='Domaine 3', blank=True)
+    domaine1 = models.CharField(max_length=15,choices=DOMAINES, verbose_name='Fonction principale en tant que bénévole')
+    domaine2 = models.CharField(max_length=15,choices=DOMAINES, verbose_name='Autre fonction', blank=True, null=True)
+    domaine3 = models.TextField(verbose_name='Intérêts dans la vie/pour la patente', blank=True, null=True)
     
     commentaire = models.TextField(blank=True, null=True)
     
@@ -378,6 +383,9 @@ class Services(Item):
         default=itemptr
     )
     itemptr+=1
+    
+    class Meta:
+        verbose_name_plural = 'Services'
         
 class EspaceE(Item):
     is_taxes = True
@@ -441,7 +449,7 @@ class Formation(Item):
     heure = models.CharField(max_length=5, default='18h')
     formateur = models.ForeignKey('Formateur')
     cout = models.DecimalField(max_digits=6,decimal_places=2, verbose_name='Coût par personne', blank=True, null=True)
-    jauge = models.IntegerField(verbose_name='Jauge')
+    jauge = models.IntegerField(verbose_name='Jauge', default=5)
     duree_heure = models.IntegerField(verbose_name='Durée de la formation en heure', default=2)
     duree_minute = models.IntegerField(verbose_name='Durée de la formation en minute', default=30, 
         validators=[MinValueValidator(0), MaxValueValidator(60)])   
@@ -487,4 +495,7 @@ class Visites(models.Model):
     
     def __str__(self):
         return self.client
+        
+    class Meta:
+        verbose_name_plural = 'Visites'
 

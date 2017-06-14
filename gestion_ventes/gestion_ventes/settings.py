@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'admin_reorder',
     'ventes',
 ]
 
@@ -48,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'admin_reorder.middleware.ModelAdminReorder',
 ]
 
 ROOT_URLCONF = 'gestion_ventes.urls'
@@ -102,7 +104,37 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+ADMIN_REORDER = (
+    # Keep original label and models
+    
+    {'app': 'ventes', 'label':'Visites à la patente','models': ('ventes.Visites',)},
 
+    {'app': 'ventes', 'label':'Personnes','models': 
+        ('ventes.Client', 
+        'ventes.Membre',
+        'ventes.Benevole',
+        'ventes.Formateur'
+        )
+    },
+    {'app': 'ventes', 'label':'Ce que l\'on vend','models': (
+        'ventes.Item', 
+        'ventes.Adhesion',
+        'ventes.AbonnementAtelier',
+        'ventes.Entreposage', 
+        'ventes.Materiel',
+        'ventes.Formation',
+        'ventes.EspaceE', 
+        'ventes.BibliothequeOutils',
+        'ventes.ContributionVolontaire',
+        'ventes.Services', 
+        'ventes.CertificatCadeau',)
+    },
+    {'app': 'ventes', 'label':'Infos sur les transactions','models': (
+        'ventes.Transaction', 
+        'ventes.Vente',
+        'ventes.Taxes')},
+
+)
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 

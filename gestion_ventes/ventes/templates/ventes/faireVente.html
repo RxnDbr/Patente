@@ -19,8 +19,8 @@
     <h2>Vendeur : {{transac_form.benevole}}</h2>
     
     <h2> Client </h2>    
-    Prénom : <input type="text" name="prenom" value="{{initial_prenom}}">{% csrf_token %}</input>
-    Nom de famille : <input type="text" name ="nom" value="{{initial_nom}}">{% csrf_token %}</input>
+    Prénom ou nom de l'organisation : <input type="text" name="prenom" value="{{initial_prenom}}">{% csrf_token %}</input>
+    Nom de famille: <input type="text" name ="nom" value="{{initial_nom}}">{% csrf_token %}</input>
     Courriel : <input type="email" name="courriel" value="{{initial_courriel}}">{% csrf_token %}</input></br>
     
     <h2> Item commandés </h2>    
@@ -41,10 +41,10 @@
     
     <h2> PRIX </h2>
     <table>
-        <tr> <td> Prix total HT : </td><td> {{totalPrixHT}}</td> </tr>
+        <tr> <td> Total Hors Taxes : </td><td> {{totalPrixHT}}</td> </tr>
         <tr> <td> TVQ : </td><td> {{totalTvq}}</td> </tr>
         <tr> <td> TPS : </td><td> {{totalTps}}</td> </tr>
-        <tr> <td> Prix total TC : </td><td> {{totalPrixTC}}</td> </tr>
+        <tr> <td> Total avec Taxes : </td><td> {{totalPrixTC}}</td> </tr>
     </table>
 
     <h3>{{trans.noTrans}}
