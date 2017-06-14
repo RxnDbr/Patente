@@ -1,5 +1,6 @@
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 
@@ -194,13 +195,21 @@ class Formateur(models.Model):
     
     #ici ce n est pas de l argent virtuel mais de l argent à payer en cheque
     compensationHeure = models.DecimalField(max_digits=4, decimal_places=2, default=20.00)
-    nbHeuresCum = models.IntegerField(verbose_name='Nombre d\'heures de bénévolat cumulées')
+    nbHeuresCum = models.DecimalField(max_digits=6, decimal_places=2, default=0.,
+        verbose_name='Nombre d\'heures de formation cumulées')
     argentDistribue = models.DecimalField(max_digits=6,decimal_places=2, 
         verbose_name='Argent Distribué', default = 0)
     desc = models.TextField(verbose_name='Description de l\'expérience')
     
     def calculRemuneration(self):
-        return selfnbHeuresCum*self.compensationHeure - self.argentDistribue  
+        return self.nbHeuresCum*self.compensationHeure - self.argentDistribue  
+        
+    def calculNbHeures(self):
+        totalFormations = Formation.objects.filter(formateur=self, date__lte=date.today())
+        totalHeures = 0.0
+        for formation in totalFormations:
+            totalHeures+= formation.duree_heure + formation.duree_minute/60.
+        return totalHeures
     
     def __str__(self):
         return self.courriel +'--'+ self.prenom + self.nom 
@@ -431,9 +440,12 @@ class Formation(Item):
     date = models.DateField(verbose_name='Date de la formation')
     heure = models.CharField(max_length=5, default='18h')
     formateur = models.ForeignKey('Formateur')
-    cout = models.DecimalField(max_digits=6,decimal_places=2, verbose_name='Coût par personne')
+    cout = models.DecimalField(max_digits=6,decimal_places=2, verbose_name='Coût par personne', blank=True, null=True)
     jauge = models.IntegerField(verbose_name='Jauge')
-    duree = models.DurationField(verbose_name='Durée')
+    duree_heure = models.IntegerField(verbose_name='Durée de la formation en heure', default=2)
+    duree_minute = models.IntegerField(verbose_name='Durée de la formation en minute', default=30, 
+        validators=[MinValueValidator(0), MaxValueValidator(60)])   
+    
     
     # permet de faire le lien avec la classe item
     #a chaque abonnement crée, un item relié se créée aussi

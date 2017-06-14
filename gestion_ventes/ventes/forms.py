@@ -1,6 +1,9 @@
 from datetime import date
 from django import forms
-from .models import Vente, Transaction, Item, Formation
+from .models import Vente, Transaction, Item, Formation, Formateur
+
+
+dateAjd = date.today() 
 
 class VenteForm(forms.ModelForm):
 #    l_sc = Item.__subclasses__() #liste de sous classes d'Item
@@ -19,6 +22,20 @@ class VenteForm(forms.ModelForm):
             CHOICES+=((it.noRef,it),)
         self.fields['item'] = forms.ChoiceField(choices=CHOICES)
         self.fields['noVente'] = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}))
+        
+        global dateAjd
+        if date.today()>dateAjd:
+        
+            #pour calculer le nb d heure cumulées d un formateur, je mets la fonction ici
+            # pour que le calcul se reactualise a tous les jours
+            
+            formateurs = Formateur.objects.all()
+            for formateur in formateurs:
+                formateur.nbHeuresCum = formateur.calculNbHeures()
+                formateur.save()
+                
+            dateAjd = date.today()
+        	
     class Meta:
         model = Vente
         fields = ('prixHTVendu',)

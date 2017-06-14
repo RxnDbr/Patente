@@ -103,17 +103,16 @@ def faire_vente(request):
 #            return render({}, 'ventes/modifier_transaction.html', locals())
             return redirect(modifier_transaction)
             
-        if "courriel" in request.POST:#and "nom" and "prenom" in request.POST:          
-            courriel = request.POST['courriel']
-            client = Client.objects.filter(courriel=courriel)
-            a.append(courriel)
+        if "nom" in request.POST and "prenom" in request.POST:#and "nom" and "prenom" in request.POST:          
+            client_nom = request.POST['nom']
+            client_prenom = request.POST['prenom']
+            client = Client.objects.filter(nom=client_nom,prenom=client_prenom)
             if client:
                 client = client[0]
                 a.append('connait')
             else:
-                nom = request.POST['nom']
-                prenom = request.POST['prenom']
-                client = Client(nom=nom, prenom=prenom, courriel=courriel)
+                client_courriel = request.POST["courriel"]
+                client = Client(nom=client_nom, prenom=client_prenom, courriel=client_courriel)
                 client.save()  
                 a.append('connait pas')          
             

@@ -19,13 +19,13 @@
     <h2>Vendeur : {{transac_form.benevole}}</h2>
     
     <h2> Client </h2>    
+    Prénom : <input type="text" name="prenom" value="{{initial_prenom}}">{% csrf_token %}</input>
+    Nom de famille : <input type="text" name ="nom" value="{{initial_nom}}">{% csrf_token %}</input>
     Courriel : <input type="email" name="courriel" value="{{initial_courriel}}">{% csrf_token %}</input></br>
-    Nom de famille : <input type="text" name ="nom" value="{{initial_nom}}">{% csrf_token %}</input></br>
-    Prénom : <input type="text" name="prenom" value="{{initial_prenom}}">{% csrf_token %}</input></br>
     
     <h2> Item commandés </h2>    
     <table>
-    <tr> <td> # Item </td> <td> Item </td> <td> Quantité</td> <td> Prix </td> </tr>
+    <tr> <td> # Item </td> <td> Item </td> <td> Prix </td> </tr>
     {% for form in vente_formset %}
         <tr>
             <td> {{ form.noVente }} </td>
