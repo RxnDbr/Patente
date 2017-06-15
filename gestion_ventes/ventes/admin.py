@@ -40,6 +40,26 @@ def get_generic_foreign_key_filter(title, parameter_name=u'', separator='-', con
                 return queryset
 
     return GenericForeignKeyFilter
+    
+###########################################################
+########### TOUT CE QUI CONCERNE LES VISITES ##############
+###########################################################
+        
+class VisiteAdmin(admin.ModelAdmin):
+    list_display = ('date','client','benevole','raison', 'commentaire')
+    search_fields = ('client__nom', 'client__prenom', 'client__courriel', 'commentaire')
+    list_filter = ('benevole','raison')
+    date_hierarchy = 'date'
+    
+###########################################################
+########### TOUT CE QUI CONCERNE LES GENS   ###############
+###########################################################
+            
+class ClientAdmin(admin.ModelAdmin):
+    list_display = ('nom','prenom','courriel')
+    search_fields = ('nom','prenom','courriel')
+    ordering = ('nom','prenom' )    
+
 
 class MembreAdmin(admin.ModelAdmin):
     list_display = ('idMembre', 'client','telephone', 'cp')
@@ -51,31 +71,68 @@ class MembreAdmin(admin.ModelAdmin):
 class BenevoleAdmin(admin.ModelAdmin):
     list_display = ('membre', 'get_tel', 'get_rabais', 'disponibilites')
     search_fields = ('membre__client__nom', 'membre__client__prenom', 'disponibilites','domaine1','domaine2', 'domaine3','commentaire')
+    list_filter = ('domaine1',)
+    ordering = ('membre__client__nom','membre__client__prenom')
     def get_tel(self, obj):
         return obj.membre.telephone
     def get_rabais(self,obj):
         return obj.compensationHeure * obj.nbHeuresCum - obj.rabaisUtilise 
-        
-class ClientAdmin(admin.ModelAdmin):
-    list_display = ('nom','prenom','courriel')
-    search_fields = ('nom','prenom','courriel')
-    ordering = ('nom','prenom' )
-        
-            
+
 class FormateurAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'prenom', 'courriel','telephone')
+    list_display = ('nom', 'prenom', 'courriel','telephone', 'get_remuneration')
+    list_filter = ('domaine1', 'domaine2','domaine3')
+    ordering = ('nom','prenom')
+    
+    def get_remuneration(self,obj):
+        return obj.calculRemuneration()
+        
+        
+###########################################################
+########### TOUT CE QUI CONCERNE LES ITEMS ################
+###########################################################        
+        
+class ItemAdmin(admin.ModelAdmin):
+    list_display = ('nom','prixHT', 'get_TC')
+    search_fields = ('nom',)
+    list_filter = ('archive',)
+    ordering = ('nom', 'prixHT')
+    
+    def get_TC(self, obj):
+        taxes = Taxes.objects.all()[0]
+        return obj.calculPrixTTC(taxes)
+        
+class FormationAdmin(admin.ModelAdmin):
+    list_display = ('nom', 'date','heure', 'formateur', 
+        'jauge','get_duree', 'prixHT','get_TC')
+    list_filter = ('archive', 'domaine', 'formateur__nom')
+    search_fields = ('nom',)
+    ordering = ('nom','date','formateur')
+    
+    def get_TC(self, obj):
+        taxes = Taxes.objects.all()[0]
+        return obj.calculPrixTTC(taxes)
+        
+    def get_duree(self, obj):
+        return str(obj.duree_heure) + 'h' + str(obj.duree_minute)
+        
+
+###########################################################
+########### TOUT CE QUI CONCERNE LES VENTES ###############
+###########################################################
     
 class VenteAdmin(admin.ModelAdmin):
-    list_display = ('noVente','content_object', 'get_client','get_payee', 'get_dateFin','prixHTVendu')
+    list_display = ('noVente','content_object', 'get_client','get_payee', 'get_date', 'get_dateFin','prixHTVendu')
     ordering = ('noVente',)
-    search_fields = ('noTrans__client__courriel','noTrans__client__nom', 'noTrans__client__prenom')
-    list_filter = (get_generic_foreign_key_filter('Articles'),)
+    search_fields = ('noTrans__client__courriel','noTrans__client__nom', 'noTrans__client__prenom', 'noTrans__noTrans')
+    list_filter = (get_generic_foreign_key_filter('Articles'),'noTrans__dateTrans')
 
     def get_client(self, obj):
-        return obj.noTrans.client.courriel
+        return obj.noTrans.client.nom + ' ' + obj.noTrans.client.prenom
+    def get_date(self,obj):
+        return obj.noTrans.dateTrans
 
     get_client.short_description = 'Client'
-    get_client.admin_order_field = 'client__courriel'
+    get_client.admin_order_field = 'client__nom'
     
     def get_payee(self, obj):
         return obj.noTrans.payee
@@ -86,27 +143,18 @@ class VenteAdmin(admin.ModelAdmin):
         except:
             date = None
         return date
-    
-    
+        
 class TaxesAdmin(admin.ModelAdmin):
-    list_diplay = ('tps','tvq')
+    list_display = ('get_nom','date','tps','tvq')
+    ordering = ('date',)
+    def get_nom(self,obj):
+        return obj.__str__()
 
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('noTrans','client','dateTrans','benevole', 'payee')
+    list_display = ('noTrans','client','benevole', 'payee','dateTrans')
     list_filter = ('dateTrans', 'payee', 'benevole',)
     search_fields = ('client__courriel','client__nom', 'client__prenom')
-    
-class ItemAdmin(admin.ModelAdmin):
-    list_display = ('nom','prixHT', 'get_TC')
-    search_fields = ('nom',)
-    list_filter = ('nom', 'archive')
-    
-    def get_TC(self, obj):
-        taxes = Taxes.objects.all()[0]
-        return obj.calculPrixTTC(taxes)
-        
-class VisiteAdmin(admin.ModelAdmin):
-    list_display = ('date','client','benevole','raison')
+    ordering = ('noTrans','benevole','dateTrans')
         
 
 admin.site.register(Client, ClientAdmin)
@@ -123,7 +171,7 @@ admin.site.register(Adhesion, ItemAdmin)
 admin.site.register(AbonnementAtelier, ItemAdmin)
 admin.site.register(Entreposage, ItemAdmin)
 admin.site.register(Materiel, ItemAdmin)
-admin.site.register(Formation, ItemAdmin)
+admin.site.register(Formation, FormationAdmin)
 admin.site.register(ContributionVolontaire, ItemAdmin)
 admin.site.register(Services, ItemAdmin)
 admin.site.register(EspaceE, ItemAdmin)

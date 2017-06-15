@@ -160,7 +160,7 @@ def faire_vente(request):
             transac.save() 
             
             vente_formset = VenteFormSet(request.POST, queryset=Vente.objects.none(), initial=initial_vente,prefix='vente') 
-                       
+            i=0           
             for vente_form in vente_formset:
                 if vente_form.is_valid():               
                     noVente = request.POST[vente_formset.prefix+'-'+str(i)+'-noVente']               
@@ -189,6 +189,7 @@ def faire_vente(request):
                                 vente.prixHTVendu = prixHT
                             vente.noTrans = transac
                             vente.save() 
+                    i+=1
             #redirect pour supprimer tous les affichages indesirables
             return redirect(faire_vente)
     else:

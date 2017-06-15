@@ -24,7 +24,7 @@ class VenteForm(forms.ModelForm):
                 formateur.save()
                                 
         CHOICES = ((None,'------'),)
-        for it in Item.objects.filter(archive=False):
+        for it in Item.objects.filter(archive=False).order_by('nom'):
             CHOICES+=((it.noRef,it),)
         self.fields['item'] = forms.ChoiceField(choices=CHOICES)
         self.fields['noVente'] = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}))
