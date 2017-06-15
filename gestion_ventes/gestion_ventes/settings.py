@@ -31,13 +31,14 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'admin_reorder',
+    'admin_view_permission',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'admin_reorder',
     'ventes',
 ]
 
@@ -133,8 +134,8 @@ ADMIN_REORDER = (
         'ventes.Transaction', 
         'ventes.Vente',
         'ventes.Taxes')},
-
 )
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
