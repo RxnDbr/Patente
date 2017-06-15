@@ -106,7 +106,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 ADMIN_REORDER = (
     # Keep original label and models
-    
+    {'app': 'auth'}, 
     {'app': 'ventes', 'label':'Visites à la patente','models': ('ventes.Visites',)},
 
     {'app': 'ventes', 'label':'Personnes','models': 
