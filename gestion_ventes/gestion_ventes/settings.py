@@ -25,7 +25,7 @@ SECRET_KEY = 'ee&0-x&)m0zrsia-h-5$a)dr53+ullw_z1%vr6nj_adhez#@(z'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['gestion.atelierlapatente.org']
+ALLOWED_HOSTS = ['gestion.atelierlapatente.org', 'localhost']
 
 
 # Application definition
