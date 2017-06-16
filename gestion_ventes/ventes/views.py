@@ -34,8 +34,9 @@ def ajouter_transaction(request):
     '''
     crée un nouveau numero de transaction 
     '''
-    global noTrans
+    global noTrans, taxes
     noTrans = genererNoTrans()
+    taxes = Taxes.objects.order_by('date').last()
     if request.POST:
         return redirect(faire_vente)
     return render(request, 'ventes/transactions.html', locals())
@@ -50,7 +51,8 @@ def faire_vente(request):
     
     #-----------------------------------------------------
     ########### TRANSACTIONS #############
-    
+    global taxes
+    taxes = Taxes.objects.order_by('date').last()
     #recupere le numero de trans global de views.py
     try:
         trans = Transaction.objects.get(noTrans=noTrans)
@@ -188,7 +190,8 @@ def faire_vente(request):
     return render(request, 'ventes/faireVente.html', locals())
     
 def modifier_transaction(request):
-    global noTrans
+    global noTrans, taxes
+    taxes = Taxes.objects.order_by('date').last()
     
     if request.POST and 'transaction' in request.POST:
         form = ChoixTransForm(request.POST)

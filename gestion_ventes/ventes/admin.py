@@ -158,10 +158,17 @@ class TransactionAdmin(admin.ModelAdmin):
     ordering = ('noTrans','benevole','dateTrans')
         
     def get_HT(self,obj):
-        return obj.get_prixTotal_HT()
+        prixHT = 0
+        for vente in Vente.objects.filter(noTrans=obj):
+            prixHT += vente.prixHTVendu
+        return prixHT
     
     def get_TC(self,obj):
-        return obj.get_prixTotal_TC()
+        prixTC = 0
+        taxes = Taxes.objects.order_by('date').last()
+        for vente in Vente.objects.filter(noTrans=obj):
+            prixTC += vente.get_prixTCVendu(taxes)
+        return prixTC
 
 admin.site.register(Client, ClientAdmin)
 admin.site.register(Membre, MembreAdmin)

@@ -367,18 +367,6 @@ class Transaction(models.Model):
 
     def __str__(self):
         return self.noTrans +'--'+self.client.nom
-        
-    def get_prixTotal_HT(self):
-        l_vente = Vente.objects.filter(noTrans=self)
-        prixHT = 0
-        for vente in l_vente:
-            prixHT+=vente.prixHTVendu
-        return round(prixHT,2)
-       
-    def get_prixTotal_TC(self):
-        taxes = Taxes.objects.last()
-        prixTC = self.get_prixTotal_HT() + taxes.tvq*self.get_prixTotal_HT() + taxes.tps*self.get_prixTotal_HT()
-        return round(prixTC,2)
 
 
 class Vente(models.Model):  
