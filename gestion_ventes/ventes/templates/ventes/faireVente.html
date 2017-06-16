@@ -1,9 +1,9 @@
+{% load static %}
 <html>
     <head>
-        <link rel="stylesheet" href="{{ STATIC_URL }}ventes/css/style.css" type="text/css">
+        <link rel="stylesheet" href="{% static 'ventes/css/style.css' %}" type="text/css" />
     </head>
-
-    <body>
+     <body>
         <form method="post" action="{% url "modifier_transaction" %}">
             {% csrf_token %}
             <p><input type="submit" value="Retour à la page des transactions"></p>
