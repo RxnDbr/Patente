@@ -411,6 +411,21 @@ class Vente(models.Model):
 
     def __str__(self):
         return self.content_object.nom
+        
+    def get_prixTCVendu(self, taxes):
+        return self.prixHTVendu + self.get_tps(taxes) + self.get_tvq(taxes)
+        
+    def get_tps(self, taxes):
+        tps = 0
+        if isinstance(self.content_object, Item):
+            tps += self.content_object.calculTps(taxes)
+        return tps
+        
+    def get_tvq(self, taxes):
+        tvq = 0
+        if isinstance(self.content_object, Item):
+            tvq += self.content_object.calculTvq(taxes)
+        return tvq
 
 class Taxes(models.Model):
     ''' 

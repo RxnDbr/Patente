@@ -13,14 +13,17 @@ def genererNoTrans():
     '''
     genere un numero de transaction en fonction de la date
     '''
-    trans = Transaction.objects.all()
+    
+    dateTrans = date.today()
+    str_date = dateTrans.strftime("%Y%m%d")
     #si aucune transaction du tout, en crée une avec la date d aujourd hui suivi de '000'
-    if len(trans)==0:
+    trans_ajd = Transaction.objects.filter(noTrans__contains=str_date) 
+    if len(trans_ajd)==0:
         str_date = date.today().strftime("%Y%m%d")
         noTrans = str_date+'000'
     #sinon, prend le dernier numero et lui ajoute un
     else:
-        noTrans = str(eval(trans.last().noTrans)+1)
+        noTrans = str(eval(trans_ajd.latest('noTrans').noTrans)+1)
     return noTrans
 
 noTrans = genererNoTrans()
@@ -32,16 +35,7 @@ def ajouter_transaction(request):
     crée un nouveau numero de transaction 
     '''
     global noTrans
-    dateTrans = date.today()
-    str_date = dateTrans.strftime("%Y%m%d")
-    toutes_trans_date = Transaction.objects.filter(noTrans__contains=str_date)
-    tous_no_trans_date = []
-    if not toutes_trans_date:
-        noTrans = str_date+'000'
-    else:
-        for trans in toutes_trans_date:
-            tous_no_trans_date.append(trans.noTrans)
-        noTrans = str(int(max(tous_no_trans_date))+1)
+    noTrans = genererNoTrans()
     if request.POST:
         return redirect(faire_vente)
     return render(request, 'ventes/transactions.html', locals())
@@ -50,7 +44,6 @@ def faire_vente(request):
     '''
     fonction qui permet d enregistrer une nouvelle transaction avec ses ventes
     '''
-    
     
     #*************************************************************************************************************************************
     #AFFICHAGE DES DONNEES INITIALES   
@@ -79,14 +72,7 @@ def faire_vente(request):
     ############ VENTES ###################
     
     ventes_trans = Vente.objects.filter(noTrans=trans)
-    totalPrixHT = totalTps = totalTvq = 0
-    # prend toutes les ventes d une meme transaction
-    for vente in ventes_trans:
-        #verifie au cas ou que ce qui est acheté herite bien de item
-        if isinstance(vente.content_object, Item):
-            #calcul le montant total des taxes pour tous les items commandés 
-            totalTps+= vente.content_object.calculTps(taxes)
-            totalTvq+= vente.content_object.calculTvq(taxes)
+    totalPrixHT = totalTps = totalTvq = totalPrixTC = 0
             
     #ne peut acheter que 10 items par transaction car je n ai pas reussi a gerer l affichage de plus d elements
     # en utilisant du js, on pourrait supprimer cette variable      
@@ -99,14 +85,15 @@ def faire_vente(request):
             noRef = ventes_trans[indice_vente].content_object.noRef
             noVente = ventes_trans[indice_vente].noVente
             prixHTVendu = ventes_trans[indice_vente].prixHTVendu 
+            totalPrixHT += prixHTVendu
+            totalTps += ventes_trans[indice_vente].get_tps(taxes)
+            totalTvq += ventes_trans[indice_vente].get_tvq(taxes)
+            totalPrixTC += ventes_trans[indice_vente].get_prixTCVendu(taxes)         
         else : 
             noRef = None
             noVente = trans.noTrans+'0'+str(indice_vente)
             prixHTVendu = 0 
         initial_vente.append({'item' : noRef, 'noVente':noVente, 'prixHTVendu':prixHTVendu})  
-        totalPrixHT+= prixHTVendu  
-
-    totalPrixTC  = totalPrixHT + totalTvq + totalTps
     
     #**************************************************************************************************************
     
@@ -193,6 +180,8 @@ def faire_vente(request):
             #redirect pour supprimer tous les affichages indesirables
             return redirect(faire_vente)
     else:
+        global noTrans
+        noTrans = genererNoTrans()
         transac_form = TransactionForm(prefix='transaction', initial=initial_trans)
         vente_formset = VenteFormSet(queryset=Vente.objects.none(), initial=initial_vente, prefix='vente') 
         
@@ -200,6 +189,7 @@ def faire_vente(request):
     
 def modifier_transaction(request):
     global noTrans
+    
     if request.POST and 'transaction' in request.POST:
         form = ChoixTransForm(request.POST)
         noTrans = request.POST['transaction']

@@ -152,7 +152,7 @@ class TaxesAdmin(admin.ModelAdmin):
         return obj.__str__()
 
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('client','benevole', 'get_HT', 'get_TC','payee','dateTrans')
+    list_display = ('noTrans','client','benevole', 'get_HT', 'get_TC','payee','dateTrans')
     list_filter = ('dateTrans', 'payee', 'benevole',)
     search_fields = ('client__courriel','client__nom', 'client__prenom')
     ordering = ('noTrans','benevole','dateTrans')
