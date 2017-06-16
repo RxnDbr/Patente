@@ -82,12 +82,12 @@ class Benevole(models.Model):
      
     DOMAINES = (
         ('accueil', 'accueil'),
+        ('atelier','projets en atelier (entretien, construction, ...)'),
+        ('formation','formation'),
         ('informatique', 'informatique'),
-        ('asso', 'asso'),
-        ('communication','communication et evenementiel'),
-        ('atelier','atelier'),
-        ('admin','admin'),
-        ('commercial','commercial'),
+        ('communication','communication'),
+        ('admin','conseil administration'),
+        ('asso','comité social'),
         ('autre','autre'),
     )    
     
@@ -121,16 +121,13 @@ class Formateur(models.Model):
     '''
     
     DOMAINES = (
+        ('securte', 'initiation à la Patente'),
         ('bois', 'bois'),
         ('metal', 'metal'),
-        ('securite', 'sécurité'),
-        ('couture','couture'),
-        ('tissage','tissage'),
+        ('textile','textile'),
         ('informatique','informatique'),
         ('electronique', 'electronique'),
-        ('art', 'art'),
-        ('soudure','soudure'),
-        ('autre','autre'),
+        ('divers','divers'),
     )
     
     nom = models.CharField(max_length=30, verbose_name='Nom')
@@ -307,13 +304,10 @@ class Formation(Item):
         ('bois', 'bois'),
         ('metal', 'metal'),
         ('securite', 'sécurité'),
-        ('couture','couture'),
-        ('tissage','tissage'),
+        ('textile','textile'),
         ('informatique','informatique'),
         ('electronique', 'electronique'),
-        ('art', 'art'),
-        ('soudure','soudure'),
-        ('autre','autre'),
+        ('divers','divers'),
     )
     
     is_taxes = True
@@ -321,7 +315,7 @@ class Formation(Item):
     heure = models.CharField(max_length=5, default='18h')
     formateur = models.ForeignKey('Formateur')
     cout = models.DecimalField(max_digits=6,decimal_places=2, verbose_name='Coût par personne', blank=True, null=True)
-    jauge = models.IntegerField(verbose_name='Jauge', default=5)
+    jauge = models.IntegerField(verbose_name='Nombre de participants max', default=5)
     duree_heure = models.IntegerField(verbose_name='Durée de la formation en heure', default=2)
     duree_minute = models.IntegerField(verbose_name='Durée de la formation en minute', default=30, 
         validators=[MinValueValidator(0), MaxValueValidator(60)]) 
@@ -367,6 +361,18 @@ class Transaction(models.Model):
 
     def __str__(self):
         return self.noTrans +'--'+self.client.nom
+        
+    def get_prixTotal_HT(self):
+        l_vente = Vente.objects.filter(noTrans=self)
+        prixHT = 0
+        for vente in l_vente:
+            prixHT+=vente.prixHTVendu
+        return round(prixHT,2)
+       
+    def get_prixTotal_TC(self):
+        taxes = Taxes.objects.last()
+        prixTC = self.get_prixTotal_HT() + taxes.tvq*self.get_prixTotal_HT() + taxes.tps*self.get_prixTotal_HT()
+        return round(prixTC,2)
 
 
 class Vente(models.Model):  
@@ -405,8 +411,8 @@ class Taxes(models.Model):
     Les taxes sont stockées sous forme de classe
     afin permettre une meilleure MAJ en cas de changement
     '''
-    tps = models.DecimalField(max_digits=5, decimal_places=4)
-    tvq = models.DecimalField(max_digits=5, decimal_places=4)
+    tps = models.DecimalField(max_digits=5, decimal_places=5)
+    tvq = models.DecimalField(max_digits=5, decimal_places=5)
     date = models.DateTimeField(auto_now_add=True, auto_now=False,
                                 verbose_name="Date de transaction")
 

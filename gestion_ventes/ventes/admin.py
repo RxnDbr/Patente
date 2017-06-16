@@ -64,7 +64,7 @@ class ClientAdmin(admin.ModelAdmin):
 class MembreAdmin(admin.ModelAdmin):
     list_display = ('idMembre', 'client','telephone', 'cp')
     date_hierarchy = 'dateAdh'
-    ordering = ('idMembre',)
+    ordering = ('client__nom','idMembre',)
     search_fields = ('idMembre','client__nom', 'client__prenom', 'client__courriel', 'cp')
 
     
@@ -79,12 +79,13 @@ class BenevoleAdmin(admin.ModelAdmin):
         return obj.compensationHeure * obj.nbHeuresCum - obj.rabaisUtilise 
 
 class FormateurAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'prenom', 'courriel','telephone', 'get_remuneration')
-    list_filter = ('domaine1', 'domaine2','domaine3')
+    list_display = ('nom', 'prenom', 'courriel','telephone', 'get_remuneration', 'get_domaine')
     ordering = ('nom','prenom')
     
     def get_remuneration(self,obj):
         return obj.calculRemuneration()
+    def get_domaine(self,obj):
+        return obj.domaine1 + ', ' + obj.domaine2 + ', ' + obj.domaine3
         
         
 ###########################################################
@@ -121,10 +122,10 @@ class FormationAdmin(admin.ModelAdmin):
 ###########################################################
     
 class VenteAdmin(admin.ModelAdmin):
-    list_display = ('noVente','content_object', 'get_client','get_payee', 'get_date', 'get_dateFin','prixHTVendu')
+    list_display = ('content_object', 'get_client','get_payee', 'get_date', 'get_dateFin','prixHTVendu')
     ordering = ('noVente',)
-    search_fields = ('noTrans__client__courriel','noTrans__client__nom', 'noTrans__client__prenom', 'noTrans__noTrans')
-    list_filter = (get_generic_foreign_key_filter('Articles'),'noTrans__dateTrans')
+    search_fields = ('noTrans__client__courriel','noTrans__client__nom', 'noTrans__client__prenom',)
+    list_filter = (get_generic_foreign_key_filter('Articles'),'noTrans__dateTrans', 'noTrans__benevole')
 
     def get_client(self, obj):
         return obj.noTrans.client.nom + ' ' + obj.noTrans.client.prenom
@@ -151,11 +152,16 @@ class TaxesAdmin(admin.ModelAdmin):
         return obj.__str__()
 
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('noTrans','client','benevole', 'payee','dateTrans')
+    list_display = ('client','benevole', 'get_HT', 'get_TC','payee','dateTrans')
     list_filter = ('dateTrans', 'payee', 'benevole',)
     search_fields = ('client__courriel','client__nom', 'client__prenom')
     ordering = ('noTrans','benevole','dateTrans')
         
+    def get_HT(self,obj):
+        return obj.get_prixTotal_HT()
+    
+    def get_TC(self,obj):
+        return obj.get_prixTotal_TC()
 
 admin.site.register(Client, ClientAdmin)
 admin.site.register(Membre, MembreAdmin)
