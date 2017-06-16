@@ -37,7 +37,7 @@ class Visites(models.Model):
         return self.client.__str__()
         
     class Meta:
-        verbose_name_plural = 'Visites'
+        verbose_name_plural = 'Présences'
         
         
 ###########################################################
@@ -219,6 +219,9 @@ class Item(models.Model):
         
     def __str__(self):
         return self.nom
+
+    class Meta:
+        verbose_name_plural = 'Tous les items que l\'on vend'
         
         
 class AbonnementAtelier(Item):
@@ -256,6 +259,9 @@ class ContributionVolontaire(Item):
 class Adhesion(Item):
     is_taxes = False
     duree = models.DurationField(default=timedelta(days=10000)) #infini  
+
+    class Meta:
+        verbose_name_plural = 'Adhésion à la Patente'
     
 class Materiel(Item):
     is_taxes = True
