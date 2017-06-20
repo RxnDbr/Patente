@@ -1,12 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>RxnD Gestion Interne</title>
+        <meta charset="utf-8">
+        <link rel="shortcut icon" href="{% static 'ventes/images/logo.png' %}">
+        <link rel="stylesheet" href="{% static 'ventes/css/style2.css' %}" type="text/css" />
+
+    </head>
+     <body>
+
+<div class="degrade">
+<div class="ajout">
 <form method="post" action="{% url "ajouter_transaction" %}">
     {% csrf_token %}
-    <input type="submit" value="Ajouter Transaction">
+    <input type="submit" value="Ajouter une transaction" class="btn">
 </form>
+</div>
 
-Modifier transaction
+<div class="modif">
 <form method="post" action="{% url "modifier_transaction" %}">
     {% csrf_token %}
     {{form}}
-    <input type="submit" value="Modifier Transaction">
+    <input type="submit" value="Modifier Transaction" class="btn2">
 </form>
-
+</div>
+    <img src="{% static 'ventes/images/logo.png' %}" alt="logo de La Patente">
+</div>
+</body>
+</html>
