@@ -1,0 +1,236 @@
+body {
+    background-color: lightgreen;
+background-image:linear-gradient(lightgreen, white);
+position:fixed;
+  width:100%;
+  top:2.5%;
+  bottom:2.5%;
+}
+
+.ajout {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.modif {
+    margin-top: 5%;
+    padding-bottom: 10px;
+}
+
+h1 {
+    color: #FCA205;
+    font-family: Lobster;
+    text-align: center;
+}
+
+h2 {
+    color: #FCA205;
+    text-align: left;
+    font-family: Arial;
+}
+
+h3 {
+    color: red;
+}
+
+form {
+    overflow:none; 
+}
+
+#vente_form {
+    height:70%;
+}
+
+table {
+    text-align:left;
+}
+
+img {
+    margin-top: 5%;
+    animation: opacitycoming 5s;
+}
+
+.degrade {
+background-image:linear-gradient(lightgreen, white);
+text-align: center;
+margin-left: 5%;
+  margin-right: 5%;
+margin-top: auto;
+  height:100%;
+    animation: opacitycoming 0.2s;
+}
+
+.btn {
+  background: #32b82b;
+  background-image: -webkit-linear-gradient(top, #32b82b, #46e33d);
+  background-image: -moz-linear-gradient(top, #32b82b, #46e33d);
+  background-image: -ms-linear-gradient(top, #32b82b, #46e33d);
+  background-image: -o-linear-gradient(top, #32b82b, #46e33d);
+  background-image: linear-gradient(to bottom, #32b82b, #46e33d);
+  -webkit-border-radius: 28;
+  -moz-border-radius: 28;
+  border-radius: 28px;
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 26px;
+  padding: 10px 20px 10px 20px;
+  text-decoration: none;
+  width: 40%;
+animation: slideleft 0.8s;
+}
+
+.btn:hover {
+  background: #fcb33c;
+  background-image: -webkit-linear-gradient(top, #fcb33c, #fcb33c);
+  background-image: -moz-linear-gradient(top, #fcb33c, #fcb33c);
+  background-image: -ms-linear-gradient(top, #fcb33c, #fcb33c);
+  background-image: -o-linear-gradient(top, #fcb33c, #fcb33c);
+  background-image: linear-gradient(to bottom, #fcb33c, #fcb33c);
+  text-decoration: none;
+}
+
+.btn2 {
+  background: #32b82b;
+  background-image: -webkit-linear-gradient(top, #32b82b, #46e33d);
+  background-image: -moz-linear-gradient(top, #32b82b, #46e33d);
+  background-image: -ms-linear-gradient(top, #32b82b, #46e33d);
+  background-image: -o-linear-gradient(top, #32b82b, #46e33d);
+  background-image: linear-gradient(to bottom, #32b82b, #46e33d);
+  -webkit-border-radius: 28;
+  -moz-border-radius: 28;
+  border-radius: 28px;
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 16px;
+  padding: 10px 20px 10px 20px;
+  margin-top: 20px;
+  text-decoration: none;
+  width: 25%;
+}
+
+.btn2:hover {
+  background: #fcb33c;
+  background-image: -webkit-linear-gradient(top, #fcb33c, #fcb33c);
+  background-image: -moz-linear-gradient(top, #fcb33c, #fcb33c);
+  background-image: -ms-linear-gradient(top, #fcb33c, #fcb33c);
+  background-image: -o-linear-gradient(top, #fcb33c, #fcb33c);
+  background-image: linear-gradient(to bottom, #fcb33c, #fcb33c);
+  text-decoration: none;
+}
+
+/*.test {
+  animation: pulse 5s;
+  height: 250px;
+  width: 250px;
+  margin: 0 auto;
+  background-color: red;
+  animation-name: stretch;
+  animation-duration: 1.5s; 
+  animation-timing-function: ease-out; 
+  animation-delay: 0;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: none;
+  animation-play-state: running;
+}*/
+
+@keyframes pulse {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+@keyframes opacitycoming {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes slideleft {
+  from {
+    margin-left: 100%;
+    width: 40%; 
+  }
+
+  to {
+    margin-left: 0%;
+    width: 40%;
+  }
+}
+
+@font-face {
+    font-family: lobster;
+    src: url(../lobster/Lobster.otf);
+}
+
+.textfield {
+animation: pulse 2s;
+    background-color: white;
+font-size: 24px;
+background-image: #ffffff;
+border-radius: 15px;
+font-family: Arial Black;
+width: 100%;
+}
+
+.textfield:hover {
+    background-image: linear-gradient(to bottom, #ffffff, #ffe246);
+}
+
+.divg {
+    margin-top: 0px;
+    margin-left: auto;
+    padding-left:10px;
+    margin-right: auto;
+    width: 100%;
+    /*border: 3px white dashed;*/
+}
+
+.divd {
+    margin-top: 0px;
+    padding-left:10px;
+    margin-left: 0px;
+    margin-right: auto;
+    width: 100%;
+    /*border: 3px white dashed;*/
+}
+
+.divb {
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+/*table {
+    height:100%;
+    border-width:1px; 
+ border-style:solid; 
+ border-color:black;
+}
+
+td { 
+ border-width:1px;
+ border-style:solid; 
+ border-color:red;
+ }*/
+
+.prix {
+    height:70%;
+}
+
+::selection{
+  background-color: #FCA205;
+  color: white;
+}
+
+/* Firefox */
+::-moz-selection {
+  background-color: #FCA205;
+  color: white;
+}
