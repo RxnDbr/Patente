@@ -364,6 +364,19 @@ class Transaction(models.Model):
     #le booléen payee permet de sauvegarder des factures ouvertes
     payee = models.BooleanField(default=False, verbose_name='Payé')
     commentaire = models.TextField(blank=True)
+    
+    def get_totalHT(self):
+        prixHT = 0
+        for vente in Vente.objects.filter(noTrans=self):
+            prixHT += vente.prixHTVendu
+        return prixHT
+        
+    def get_totalTC(self):
+        prixTC = 0
+        taxes = Taxes.objects.order_by('date').last()
+        for vente in Vente.objects.filter(noTrans=self):
+            prixTC += vente.get_prixTCVendu(taxes)
+        return prixTC
 
     def __str__(self):
         return self.noTrans +'--'+self.client.nom

@@ -1,5 +1,6 @@
 # Create your views here.
-from datetime import date
+from datetime import date, datetime
+from django.utils import timezone
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
@@ -26,7 +27,8 @@ def genererNoTrans():
         noTrans = str(eval(trans_ajd.latest('noTrans').noTrans)+1)
     return noTrans
 
-noTrans = genererNoTrans()
+generation_noTans = genererNoTrans()
+noTrans = generation_noTans
 #prend la taxe en vigueur
 taxes = Taxes.objects.order_by('date').last()
 
@@ -60,7 +62,7 @@ def faire_vente(request):
         initial_nom= trans.client.nom
         initial_prenom = trans.client.prenom
         initial_courriel = trans.client.courriel  
-        existant = True    
+        existant = True 
         
     #dans le cas ou aucune transaction ne correspond au numero généré
     except:
@@ -133,16 +135,13 @@ def faire_vente(request):
             transac.client = client
             transac.moyenPaiement = transac_form.cleaned_data['moyenPaiement']
             transac.benevole = transac_form.cleaned_data['benevole']
-                
-            try:
+            existe_trans = Transaction.objects.filter(noTrans=transac.noTrans)
+            if len(existe_trans)>0:
                 #s il existe déjà dans la base une transaction avec le numero ici attribué
                 # alors on supprime la transaction pour l ecraser avec les nouvelles données
                 # on ne garde que l info si la transaction etait payee ou non
-                existe_trans = Transaction.objects.get(noTrans=trans.noTrans)
-                transac.payee=existe.payee
+                transac.payee=existe_trans[0].payee
                 existe_trans.delete()
-            except : 
-                pass
                         
             if "payer" in request.POST:
                 transac.payee=True
@@ -182,8 +181,6 @@ def faire_vente(request):
             #redirect pour supprimer tous les affichages indesirables
             return redirect(faire_vente)
     else:
-        global noTrans
-        noTrans = genererNoTrans()
         transac_form = TransactionForm(prefix='transaction', initial=initial_trans)
         vente_formset = VenteFormSet(queryset=Vente.objects.none(), initial=initial_vente, prefix='vente') 
         
@@ -194,10 +191,31 @@ def modifier_transaction(request):
     taxes = Taxes.objects.order_by('date').last()
     
     if request.POST and 'transaction' in request.POST:
-        form = ChoixTransForm(request.POST)
+        trans_form = ChoixTransForm(request.POST)
         noTrans = request.POST['transaction']
         return redirect(faire_vente)
     else:
-        form = ChoixTransForm()
-    return render(request, 'ventes/transactions.html', {'form':form})
+        trans_form = ChoixTransForm()
+    
+    date_balance = form = ChoixDate(request.POST)
+    return render(request, 'ventes/transactions.html', {'trans_form':trans_form, 'date_balance':date_balance})
+    
+def balance_journee(request):
+    if request.POST:
+        jour = timezone.datetime.strptime(request.POST['date'], '%m/%d/%Y').date()
+        transac = Transaction.objects.filter(dateTrans__contains=jour, payee=True)
+        total_debit = total_comptant = total_ligne = total_HT = total_TC = 0
+        for t in transac:
+            total_HT += t.get_totalHT()
+            total_TC += t.get_totalTC()
+            if t.moyenPaiement == 'DEBIT':
+                total_debit += t.get_totalTC()
+            elif t.moyenPaiement == 'COMPTANT':
+                total_comptant += t.get_totalTC()
+            elif t.moyenPaiement == 'LIGNE':
+                total_ligne += t.get_totalTC()
+    return render(request, 'ventes/balance.html', locals())
+
+            
+
  

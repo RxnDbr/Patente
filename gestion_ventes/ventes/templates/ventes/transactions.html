@@ -1,4 +1,13 @@
-<form method="post" action="{% url "ajouter_transaction" %}">
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css"> 
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+<script>
+$(document).ready(function() {
+    $('.datepicker').datepicker();
+});
+</script>
+  
+  <form method="post" action="{% url "ajouter_transaction" %}">
     {% csrf_token %}
     <input type="submit" value="Ajouter Transaction">
 </form>
@@ -6,7 +15,13 @@
 Modifier transaction
 <form method="post" action="{% url "modifier_transaction" %}">
     {% csrf_token %}
-    {{form}}
+    {{trans_form}}
     <input type="submit" value="Modifier Transaction">
+</form>
+
+<form method="post" action="{% url "balance_journee" %}">
+    {% csrf_token %}
+    {{date_balance}}
+    <input type="submit" value="Voir les rentrées d'argent de la journée">
 </form>
 
