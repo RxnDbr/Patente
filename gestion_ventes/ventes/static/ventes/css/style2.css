@@ -1,14 +1,15 @@
 body {
     background-color: lightgreen;
 background-image:linear-gradient(lightgreen, white);
-position:fixed;
+
   width:100%;
   top:2.5%;
   bottom:2.5%;
+    overflow:auto;
 }
 
 .ajout {
-    padding-top: 10px;
+    padding-top: 5px;
     padding-bottom: 10px;
 }
 
@@ -38,15 +39,16 @@ form {
 }
 
 #vente_form {
-    height:70%;
+    height:65%;
 }
 
 table {
     text-align:left;
+    border: 1px;
 }
 
 img {
-    margin-top: 5%;
+    margin-top: 3%;
     animation: opacitycoming 5s;
 }
 
@@ -233,4 +235,15 @@ td {
 ::-moz-selection {
   background-color: #FCA205;
   color: white;
+}
+
+.total {
+    float:center;
+    width: 40%;
+    margin-left: 30%;
+    margin-right: 30%;
+}
+
+.restotal {
+    padding-left:70%;
 }

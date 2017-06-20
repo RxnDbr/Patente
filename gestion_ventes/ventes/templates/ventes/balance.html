@@ -1,6 +1,42 @@
-<h1> Total des transaction du {{jour}} </h1>
-<p>Total des rentrées sans taxes : {{total_HT}}</p>
-<p>Total des rentrées sans taxes : {{total_TC}}</p>
-<p>Total des rentrées comptant : {{total_comptant}}</p>
-<p>Total des rentrées débit : {{total_debit}}</p>
-<p>Total des rentrées en ligne : {{total_ligne}}</p>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>RxnD Gestion Interne</title>
+        <meta charset="utf-8">
+        <link rel="shortcut icon" href="{% static 'ventes/images/logo.png' %}">
+        <link rel="stylesheet" href="{% static 'ventes/css/style2.css' %}" type="text/css" />
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css"> 
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+        <script>
+        $(document).ready(function() {
+            $('.datepicker').datepicker();
+        });
+        </script>
+
+    </head>
+
+    <body>
+        <div class="degrade">
+
+            <form method="post" action="{% url "modifier_transaction" %}">
+                {% csrf_token %}
+                <p><input type="submit" value="Retour à la page des transactions" class="btn"></p>
+            </form>
+
+            <h1> Total des transaction du {{jour}} </h1>
+                <div >
+                    <table class="total">
+                        <tr><td><p class="">Total des rentrées sans taxes :</p></td><td><p class="restotal"> {{total_HT}}</p></td></tr>
+                        <tr><td><p class="">Total des rentrées sans taxes :</p></td><td><p class="restotal"> {{total_TC}}</p></td></tr>
+                        <tr><td><p class="">Total des rentrées comptant sans taxes :</p></td><td><p class="restotal"> {{total_comptant}}</p></td></tr>
+                        <tr><td><p class="">Total des rentrées débit sans taxes :</p></td><td><p class="restotal"> {{total_debit}}</p></td></tr>
+                        <tr><td><p class="">Total des rentrées en ligne sans taxes :</p></td><td><p class="restotal"> {{total_ligne}}</p></td></tr>
+                    </table>
+                </div>
+            <img src="{% static 'ventes/images/logo.png' %}" alt="logo de La Patente">
+        </div>
+    </body>
+</html>
+
