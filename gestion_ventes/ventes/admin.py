@@ -152,16 +152,16 @@ class TaxesAdmin(admin.ModelAdmin):
         return obj.__str__()
 
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('client','benevole', 'get_HT', 'get_TC','payee','dateTrans')
+    list_display = ('noTrans','client','benevole', 'get_HT', 'get_TC','payee','dateTrans')
     list_filter = ('dateTrans', 'payee', 'benevole',)
     search_fields = ('client__courriel','client__nom', 'client__prenom')
     ordering = ('noTrans','benevole','dateTrans')
         
     def get_HT(self,obj):
-        return obj.get_prixTotal_HT()
+        return obj.get_totalHT()
     
     def get_TC(self,obj):
-        return obj.get_prixTotal_TC()
+        return obj.get_totalTC()
 
 admin.site.register(Client, ClientAdmin)
 admin.site.register(Membre, MembreAdmin)

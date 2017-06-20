@@ -1,6 +1,9 @@
 from datetime import date
+from functools import partial
 from django import forms
 from .models import Vente, Transaction, Item, Formation, Formateur
+
+DateInput = partial(forms.DateInput, {'class': 'datepicker'})
 
 #permet de mettre à jour les informations quotidiennement
 dateAjd = date(2017,6,13) 
@@ -45,4 +48,7 @@ class ChoixTransForm(forms.Form):
         for trans in Transaction.objects.all().order_by('-dateTrans'):
             CHOICES+=((trans.noTrans, trans),)
         self.fields['transaction'] = forms.ChoiceField(choices=CHOICES)
+        
+class ChoixDate(forms.Form):
+    date = forms.DateField(widget=DateInput(), required=False)
         

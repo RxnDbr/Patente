@@ -1,5 +1,6 @@
 # Create your views here.
-from datetime import date
+from datetime import date, datetime
+from django.utils import timezone
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
@@ -13,17 +14,21 @@ def genererNoTrans():
     '''
     genere un numero de transaction en fonction de la date
     '''
-    trans = Transaction.objects.all()
+    
+    dateTrans = date.today()
+    str_date = dateTrans.strftime("%Y%m%d")
     #si aucune transaction du tout, en crée une avec la date d aujourd hui suivi de '000'
-    if len(trans)==0:
+    trans_ajd = Transaction.objects.filter(noTrans__contains=str_date) 
+    if len(trans_ajd)==0:
         str_date = date.today().strftime("%Y%m%d")
         noTrans = str_date+'000'
     #sinon, prend le dernier numero et lui ajoute un
     else:
-        noTrans = str(eval(trans.last().noTrans)+1)
+        noTrans = str(eval(trans_ajd.latest('noTrans').noTrans)+1)
     return noTrans
 
-noTrans = genererNoTrans()
+generation_noTans = genererNoTrans()
+noTrans = generation_noTans
 #prend la taxe en vigueur
 taxes = Taxes.objects.order_by('date').last()
 
@@ -31,17 +36,9 @@ def ajouter_transaction(request):
     '''
     crée un nouveau numero de transaction 
     '''
-    global noTrans
-    dateTrans = date.today()
-    str_date = dateTrans.strftime("%Y%m%d")
-    toutes_trans_date = Transaction.objects.filter(noTrans__contains=str_date)
-    tous_no_trans_date = []
-    if not toutes_trans_date:
-        noTrans = str_date+'000'
-    else:
-        for trans in toutes_trans_date:
-            tous_no_trans_date.append(trans.noTrans)
-        noTrans = str(int(max(tous_no_trans_date))+1)
+    global noTrans, taxes
+    noTrans = genererNoTrans()
+    taxes = Taxes.objects.order_by('date').last()
     if request.POST:
         return redirect(faire_vente)
     return render(request, 'ventes/transactions.html', locals())
@@ -51,13 +48,13 @@ def faire_vente(request):
     fonction qui permet d enregistrer une nouvelle transaction avec ses ventes
     '''
     
-    
     #*************************************************************************************************************************************
     #AFFICHAGE DES DONNEES INITIALES   
     
     #-----------------------------------------------------
     ########### TRANSACTIONS #############
-    
+    global taxes
+    taxes = Taxes.objects.order_by('date').last()
     #recupere le numero de trans global de views.py
     try:
         trans = Transaction.objects.get(noTrans=noTrans)
@@ -65,7 +62,7 @@ def faire_vente(request):
         initial_nom= trans.client.nom
         initial_prenom = trans.client.prenom
         initial_courriel = trans.client.courriel  
-        existant = True    
+        existant = True 
         
     #dans le cas ou aucune transaction ne correspond au numero généré
     except:
@@ -79,14 +76,7 @@ def faire_vente(request):
     ############ VENTES ###################
     
     ventes_trans = Vente.objects.filter(noTrans=trans)
-    totalPrixHT = totalTps = totalTvq = 0
-    # prend toutes les ventes d une meme transaction
-    for vente in ventes_trans:
-        #verifie au cas ou que ce qui est acheté herite bien de item
-        if isinstance(vente.content_object, Item):
-            #calcul le montant total des taxes pour tous les items commandés 
-            totalTps+= vente.content_object.calculTps(taxes)
-            totalTvq+= vente.content_object.calculTvq(taxes)
+    totalPrixHT = totalTps = totalTvq = totalPrixTC = 0
             
     #ne peut acheter que 10 items par transaction car je n ai pas reussi a gerer l affichage de plus d elements
     # en utilisant du js, on pourrait supprimer cette variable      
@@ -99,14 +89,15 @@ def faire_vente(request):
             noRef = ventes_trans[indice_vente].content_object.noRef
             noVente = ventes_trans[indice_vente].noVente
             prixHTVendu = ventes_trans[indice_vente].prixHTVendu 
+            totalPrixHT += prixHTVendu
+            totalTps += ventes_trans[indice_vente].get_tps(taxes)
+            totalTvq += ventes_trans[indice_vente].get_tvq(taxes)
+            totalPrixTC += ventes_trans[indice_vente].get_prixTCVendu(taxes)         
         else : 
             noRef = None
             noVente = trans.noTrans+'0'+str(indice_vente)
             prixHTVendu = 0 
         initial_vente.append({'item' : noRef, 'noVente':noVente, 'prixHTVendu':prixHTVendu})  
-        totalPrixHT+= prixHTVendu  
-
-    totalPrixTC  = totalPrixHT + totalTvq + totalTps
     
     #**************************************************************************************************************
     
@@ -144,16 +135,13 @@ def faire_vente(request):
             transac.client = client
             transac.moyenPaiement = transac_form.cleaned_data['moyenPaiement']
             transac.benevole = transac_form.cleaned_data['benevole']
-                
-            try:
+            existe_trans = Transaction.objects.filter(noTrans=transac.noTrans)
+            if len(existe_trans)>0:
                 #s il existe déjà dans la base une transaction avec le numero ici attribué
                 # alors on supprime la transaction pour l ecraser avec les nouvelles données
                 # on ne garde que l info si la transaction etait payee ou non
-                existe_trans = Transaction.objects.get(noTrans=trans.noTrans)
-                transac.payee=existe.payee
+                transac.payee=existe_trans[0].payee
                 existe_trans.delete()
-            except : 
-                pass
                         
             if "payer" in request.POST:
                 transac.payee=True
@@ -199,12 +187,35 @@ def faire_vente(request):
     return render(request, 'ventes/faireVente.html', locals())
     
 def modifier_transaction(request):
-    global noTrans
+    global noTrans, taxes
+    taxes = Taxes.objects.order_by('date').last()
+    
     if request.POST and 'transaction' in request.POST:
-        form = ChoixTransForm(request.POST)
+        trans_form = ChoixTransForm(request.POST)
         noTrans = request.POST['transaction']
         return redirect(faire_vente)
     else:
-        form = ChoixTransForm()
-    return render(request, 'ventes/transactions.html', {'form':form})
+        trans_form = ChoixTransForm()
+    
+    date_balance = form = ChoixDate(request.POST)
+    return render(request, 'ventes/transactions.html', {'trans_form':trans_form, 'date_balance':date_balance})
+    
+def balance_journee(request):
+    if request.POST:
+        jour = timezone.datetime.strptime(request.POST['date'], '%m/%d/%Y').date()
+        transac = Transaction.objects.filter(dateTrans__contains=jour, payee=True)
+        total_debit = total_comptant = total_ligne = total_HT = total_TC = 0
+        for t in transac:
+            total_HT += t.get_totalHT()
+            total_TC += t.get_totalTC()
+            if t.moyenPaiement == 'DEBIT':
+                total_debit += t.get_totalTC()
+            elif t.moyenPaiement == 'COMPTANT':
+                total_comptant += t.get_totalTC()
+            elif t.moyenPaiement == 'LIGNE':
+                total_ligne += t.get_totalTC()
+    return render(request, 'ventes/balance.html', locals())
+
+            
+
  

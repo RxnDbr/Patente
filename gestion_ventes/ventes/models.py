@@ -37,7 +37,7 @@ class Visites(models.Model):
         return self.client.__str__()
         
     class Meta:
-        verbose_name_plural = 'Visites'
+        verbose_name_plural = 'Présences'
         
         
 ###########################################################
@@ -219,6 +219,9 @@ class Item(models.Model):
         
     def __str__(self):
         return self.nom
+
+    class Meta:
+        verbose_name_plural = 'Tous les items que l\'on vend'
         
         
 class AbonnementAtelier(Item):
@@ -256,6 +259,9 @@ class ContributionVolontaire(Item):
 class Adhesion(Item):
     is_taxes = False
     duree = models.DurationField(default=timedelta(days=10000)) #infini  
+
+    class Meta:
+        verbose_name_plural = 'Adhésion à la Patente'
     
 class Materiel(Item):
     is_taxes = True
@@ -358,21 +364,22 @@ class Transaction(models.Model):
     #le booléen payee permet de sauvegarder des factures ouvertes
     payee = models.BooleanField(default=False, verbose_name='Payé')
     commentaire = models.TextField(blank=True)
+    
+    def get_totalHT(self):
+        prixHT = 0
+        for vente in Vente.objects.filter(noTrans=self):
+            prixHT += vente.prixHTVendu
+        return prixHT
+        
+    def get_totalTC(self):
+        prixTC = 0
+        taxes = Taxes.objects.order_by('date').last()
+        for vente in Vente.objects.filter(noTrans=self):
+            prixTC += vente.get_prixTCVendu(taxes)
+        return prixTC
 
     def __str__(self):
         return self.noTrans +'--'+self.client.nom
-        
-    def get_prixTotal_HT(self):
-        l_vente = Vente.objects.filter(noTrans=self)
-        prixHT = 0
-        for vente in l_vente:
-            prixHT+=vente.prixHTVendu
-        return round(prixHT,2)
-       
-    def get_prixTotal_TC(self):
-        taxes = Taxes.objects.last()
-        prixTC = self.get_prixTotal_HT() + taxes.tvq*self.get_prixTotal_HT() + taxes.tps*self.get_prixTotal_HT()
-        return round(prixTC,2)
 
 
 class Vente(models.Model):  
@@ -405,6 +412,21 @@ class Vente(models.Model):
 
     def __str__(self):
         return self.content_object.nom
+        
+    def get_prixTCVendu(self, taxes):
+        return self.prixHTVendu + self.get_tps(taxes) + self.get_tvq(taxes)
+        
+    def get_tps(self, taxes):
+        tps = 0
+        if isinstance(self.content_object, Item):
+            tps += self.content_object.calculTps(taxes)
+        return tps
+        
+    def get_tvq(self, taxes):
+        tvq = 0
+        if isinstance(self.content_object, Item):
+            tvq += self.content_object.calculTvq(taxes)
+        return tvq
 
 class Taxes(models.Model):
     ''' 

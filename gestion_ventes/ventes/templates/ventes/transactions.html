@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -6,26 +7,43 @@
         <meta charset="utf-8">
         <link rel="shortcut icon" href="{% static 'ventes/images/logo.png' %}">
         <link rel="stylesheet" href="{% static 'ventes/css/style2.css' %}" type="text/css" />
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css"> 
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+        <script>
+        $(document).ready(function() {
+            $('.datepicker').datepicker();
+        });
+        </script>
 
     </head>
-     <body>
 
-<div class="degrade">
-<div class="ajout">
-<form method="post" action="{% url "ajouter_transaction" %}">
-    {% csrf_token %}
-    <input type="submit" value="Ajouter une transaction" class="btn">
-</form>
-</div>
+    <body>
+        <div class="degrade">
+            <div class="ajout">
+                <form method="post" action="{% url "ajouter_transaction" %}">
+                    {% csrf_token %}
+                    <input type="submit" value="Ajouter une transaction" class="btn">
+                </form>
+            </div>
 
-<div class="modif">
-<form method="post" action="{% url "modifier_transaction" %}">
-    {% csrf_token %}
-    {{form}}
-    <input type="submit" value="Modifier Transaction" class="btn2">
-</form>
-</div>
-    <img src="{% static 'ventes/images/logo.png' %}" alt="logo de La Patente">
-</div>
-</body>
+            <div class="modif">
+                <form method="post" action="{% url "modifier_transaction" %}">
+                    {% csrf_token %}
+                    {{trans_form}}
+                    <input type="submit" value="Modifier Transaction" class="btn2">
+                </form>
+            </div>
+            <div class="balance">
+                <form method="post" action="{% url "balance_journee" %}">
+                    {% csrf_token %}
+                    {{date_balance}}
+                    <input type="submit" value="Voir les rentrées d'argent de la journée">
+                </form>
+            </div>
+            <img src="{% static 'ventes/images/logo.png' %}" alt="logo de La Patente">
+        </div>
+    </body>
 </html>
+
+
