@@ -230,6 +230,8 @@ class AbonnementAtelier(Item):
         (timedelta(days=1),'Journée'),
         (timedelta(weeks=1),'Semaine'),
         (timedelta(days=31),'Mois'),
+        (timedelta(days=93),'3 Mois'),
+        (timedelta(days=186),'6 Mois'),
         (timedelta(days=365),'Année'),
     )
     duree = models.DurationField(choices=DUREES, verbose_name='Durée')
