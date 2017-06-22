@@ -50,5 +50,5 @@ class ChoixTransForm(forms.Form):
         self.fields['transaction'] = forms.ChoiceField(choices=CHOICES)
         
 class ChoixDate(forms.Form):
-    date = forms.DateField(widget=DateInput(), required=False)
+    date = forms.DateField(widget=DateInput(), required=False, initial=date.today)
         

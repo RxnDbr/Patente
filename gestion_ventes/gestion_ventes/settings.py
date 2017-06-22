@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'ee&0-x&)m0zrsia-h-5$a)dr53+ullw_z1%vr6nj_adhez#@(z'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['gestion.atelierlapatente.org', 'localhost']
 

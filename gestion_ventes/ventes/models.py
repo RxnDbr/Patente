@@ -127,7 +127,7 @@ class Formateur(models.Model):
         ('textile','textile'),
         ('informatique','informatique'),
         ('electronique', 'electronique'),
-        ('divers','divers'),
+        ('divers','autre'),
     )
     
     nom = models.CharField(max_length=30, verbose_name='Nom')
@@ -173,7 +173,7 @@ class Item(models.Model):
     '''
     
     noRef = models.AutoField(primary_key=True)
-    nom  = models.CharField(max_length=30, verbose_name='Nom de l\'article')
+    nom  = models.CharField(max_length=41, verbose_name='Nom de l\'article')
     prixHT = models.DecimalField(max_digits=6,decimal_places=2, verbose_name='Prix Hors Taxes')
     is_taxes = models.BooleanField(default=True, verbose_name='Taxes') #pour savoir s il l item est taxé
     archive = models.BooleanField(default=False, verbose_name='Archivé') #pour savoir si l item est encore d actualité/vendu
@@ -230,6 +230,8 @@ class AbonnementAtelier(Item):
         (timedelta(days=1),'Journée'),
         (timedelta(weeks=1),'Semaine'),
         (timedelta(days=31),'Mois'),
+        (timedelta(days=93),'3 Mois'),
+        (timedelta(days=186),'6 Mois'),
         (timedelta(days=365),'Année'),
     )
     duree = models.DurationField(choices=DUREES, verbose_name='Durée')
@@ -313,7 +315,7 @@ class Formation(Item):
         ('textile','textile'),
         ('informatique','informatique'),
         ('electronique', 'electronique'),
-        ('divers','divers'),
+        ('divers','autre'),
     )
     
     is_taxes = True
@@ -419,13 +421,13 @@ class Vente(models.Model):
     def get_tps(self, taxes):
         tps = 0
         if isinstance(self.content_object, Item):
-            tps += self.content_object.calculTps(taxes)
+            tps += self.prixHTVendu*taxes.tps
         return tps
         
     def get_tvq(self, taxes):
         tvq = 0
         if isinstance(self.content_object, Item):
-            tvq += self.content_object.calculTvq(taxes)
+            tvq += self.prixHTVendu*taxes.tvq
         return tvq
 
 class Taxes(models.Model):
