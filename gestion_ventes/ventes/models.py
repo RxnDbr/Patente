@@ -422,13 +422,13 @@ class Vente(models.Model):
         tps = 0
         if isinstance(self.content_object, Item):
             tps += self.prixHTVendu*taxes.tps
-        return tps
+        return round(tps,2)
         
     def get_tvq(self, taxes):
         tvq = 0
         if isinstance(self.content_object, Item):
             tvq += self.prixHTVendu*taxes.tvq
-        return tvq
+        return round(tvq,2)
 
 class Taxes(models.Model):
     ''' 

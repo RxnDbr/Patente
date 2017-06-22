@@ -8,3 +8,4 @@ urlpatterns = [
     url(r'^balance$', views.balance_journee, name='balance_journee')
     
 ]
+
