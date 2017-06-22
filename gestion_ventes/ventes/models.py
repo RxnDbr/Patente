@@ -413,7 +413,10 @@ class Vente(models.Model):
     content_object = GenericForeignKey('content_type', 'object_id')
 
     def __str__(self):
-        return self.content_object.nom
+        if isinstance(self.content_object, Item):
+            return self.content_object.nom
+        else:
+            return 'NR'
         
     def get_prixTCVendu(self, taxes):
         return self.prixHTVendu + self.get_tps(taxes) + self.get_tvq(taxes)
