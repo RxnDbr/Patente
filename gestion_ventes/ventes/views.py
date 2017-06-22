@@ -202,7 +202,10 @@ def modifier_transaction(request):
     
 def balance_journee(request):
     if request.POST:
-        jour = timezone.datetime.strptime(request.POST['date'], '%m/%d/%Y').date()
+        if request.POST['date']!='':
+            jour = timezone.datetime.strptime(request.POST['date'], '%m/%d/%Y').date()
+        else:
+            jour = date.today()
         transac = Transaction.objects.filter(dateTrans__contains=jour, payee=True)
         total_debit = total_comptant = total_ligne = total_HT = total_TC = 0
         for t in transac:
