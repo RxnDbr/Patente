@@ -22,101 +22,100 @@
                 
                 {%if trans.payee %}
                     <fieldset disabled>  
-                {%endif%} 
-               
-
-                {{ transac_form.management_form }}
-                
-                {{ vente_formset.management_form }}
-                <table>
-                    <tr>
-                        <td>
-                            <div class="divg">
-                            <h2>Vendeur</h2>
-                            <h2>{{transac_form.benevole}}</h2>
-
-                                <div>
-                                    <div>
-                                        <h2> Client </h2>
-                                    </div>
-                                    <table>
-                                        <tr>
-                                        <td>Prénom ou nom de l'organisation : </td><td> <input type="text" name="prenom"    value="{{initial_prenom}}" class="textfield">{% csrf_token %}</input></td>
-                </tr>
-                <tr>
-                                        <td>Nom de famille: </td><td><input type="text" name ="nom" value="{{initial_nom}}" class="textfield">{% csrf_token %}</input></td>
-                </tr>
-                                        <tr>
-                                        <td>Courriel : </td><td><input type="email" name="courriel" value="{{initial_courriel}}" class="textfield">{% csrf_token %}</input></td>
-                                        </tr></br>
-                                    </table>
-                                </div>
-                            </div>
-                        </td>
-                        <td rowspan=2 align=center>
-
-                            <div class="divd">
-                            <h2> Items commandés </h2>    
-                            <table>
-                            <tr> <td> # Item </td> <td> Item </td> <td> Prix </td> </tr>
-                            {% for form in vente_formset %}
-                                <tr>
-                                    <td> {{ form.noVente }} </td>
-                                    <td> {{ form.item }} </td>
-                                    <td> {{ form.prixHTVendu }} </td>
-                                </tr>
-                            {% endfor %}
-                            </table>
-                            </div>
-                                    <input type="submit" value="Générer prix" name="calcul" class="btn2"/>
-                        <input type="submit" value="Payer" name="payer" class="btn2"/>
-                        </td>
-                        </tr>
+                        {%endif%} 
                        
-                        <tr>
-                        <td>
-            <table>
-                        <tr>
 
-                        <div class="divb">
-                        <td>
-                        <h2> Prix </h2>
-                            <table class="prix">
-                                <tr> <td> Total hors taxes : </td><td> {{totalPrixHT}}</td> </tr>
-                                <tr> <td> TVQ : </td><td> {{totalTvq}}</td> </tr>
-                                <tr> <td> TPS : </td><td> {{totalTps}}</td> </tr>
-                                <tr> <td> Total avec taxes : </td><td> {{totalPrixTC}}</td> </tr>
-                            </table>
-            </td>
-            <td width=20%>
-                         <h2>Commentaire </h2> 
-                            <p>{{transac_form.commentaire}}</p>
-                      </td>
-                <td align=center>
-                                <h4>{{trans.noTrans}}</h4>
-                        <h3>{%if trans.payee %}
-                                Payé
-                            {%else%}
-                                Pas payé   
-                            {%endif%} 
-                        </h3>
-                        Moyen de Paiement: {{transac_form.moyenPaiement}}
-                </td>
+                        {{ transac_form.management_form }}
+                        
+                        {{ vente_formset.management_form }}
+                        <table>
+                            <tr>
+                                <td>
+                                    <div class="divg">
+                                    <h2>Vendeur</h2>
+                                    <h2>{{transac_form.benevole}}</h2>
+                                        <br/>
+                                        <div>
+                                            <div>
+                                                <h2> Client </h2>
+                                            </div>
+                                            <table>
+                                                <tr>
+                                                <td>Prénom / Nom de l'organisation </td><td> <input type="text" name="prenom"    value="{{initial_prenom}}" class="textfield">{% csrf_token %}</input></td>
                         </tr>
-            </table>
-                        </td>
-                    </tr>
-                </table>
-                </div>
-                
-                {%if trans.payee %}
+                        <tr>
+                                                <td>Nom de famille </td><td><input type="text" name ="nom" value="{{initial_nom}}" class="textfield">{% csrf_token %}</input></td>
+                        </tr>
+                                                <tr>
+                                                <td>Courriel </td><td><input type="email" name="courriel" value="{{initial_courriel}}" class="textfield">{% csrf_token %}</input></td>
+                                                </tr></br>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td rowspan=2 align=center>
+
+                                    <div class="divd">
+                                        <h2> Items commandés </h2>    
+                                        <table>
+                                            <tr> 
+                                                <td> # Item </td> 
+                                                <td> Item </td> 
+                                                <td> Prix </td> 
+                                            </tr>
+                                        {% for form in vente_formset %}
+                                            <tr>
+                                                <td> {{ form.noVente }} </td>
+                                                <td> {{ form.item }} </td>
+                                                <td> {{ form.prixHTVendu }} </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </table>
+                                    </div>
+                                    <h2> Prix </h2>
+                                                <table class="prix">
+                                                    <tr class="fond"><td> Total hors taxes : </td><td><h4> {{totalPrixHT}}</h4></td></tr>
+                                                    <tr class="fond"><td> TVQ : </td><td><h4> {{totalTvq}}</h4></td></tr>
+                                                    <tr class="fond"><td> TPS : </td><td><h4> {{totalTps}}</h4></td> </tr>
+                                                    <tr><td><h4> Total avec taxes : </h4></td><td> <h3> {{totalPrixTC}} $</h3> </td> </tr>
+                                                </table>
+                {%if existant %}
+                    <input type="submit" value="Annuler" name="annuler" class="btn2"/>
+                {% endif %}
+                                    <input type="submit" value="Générer prix" name="calcul" class="btn2"/>
+                                    <input type="submit" value="Payer" name="payer" class="btn2"/>
+                                </td>
+                                </tr>
+                               
+                                <tr>
+                                    <td>
+                                        <table>
+                                            <tr>
+                                            <div class="divb">
+                                            <td width=20%>
+                                                <h2>Commentaire </h2> 
+                                                <p>{{transac_form.commentaire}}</p>
+                                            </td>
+                                            <td align=center>
+                                                <h4>{{trans.noTrans}}</h4>
+                                                <h3>{%if trans.payee %}
+                                                        Payé
+                                                    {%else%}
+                                                        Pas payé   
+                                                    {%endif%} 
+                                                </h3>
+                                                Moyen de Paiement: {{transac_form.moyenPaiement}}
+                                            </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                        </table>
+                        {%if trans.payee %}
                     </fieldset> 
                 {%endif%}
                 
-                {%if existant %}
-                    <input type="submit" value="Annuler" name="annuler"/>
-                {% endif %}
-                    
+
             </form>
         </div>
     </body>

@@ -1,10 +1,9 @@
 body {
     background-color: lightgreen;
-background-image:linear-gradient(lightgreen, white);
-
-  width:100%;
-  top:2.5%;
-  bottom:2.5%;
+    background-image:linear-gradient(lightgreen, white);
+    width:100%;
+    top:2.5%;
+    bottom:2.5%;
     overflow:auto;
 }
 
@@ -24,14 +23,17 @@ h1 {
     text-align: center;
 }
 
-h2 {
-    color: #FCA205;
-    text-align: left;
-    font-family: Arial;
-}
+
 
 h3 {
     color: red;
+}
+
+h4 {
+    margin-top: auto;
+    margin-bottom: auto;
+    text-align: center;
+    vertical-align: center;
 }
 
 form {
@@ -47,18 +49,33 @@ table {
     border: 1px;
 }
 
+.fond:hover {
+    animation-name: clignote;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;   
+}
+
+h2 {
+    margin-top: 5px;
+    color: #FCA205;
+    text-align: left;
+    font-family: Arial;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
 img {
     margin-top: 3%;
     animation: opacitycoming 5s;
 }
 
 .degrade {
-background-image:linear-gradient(lightgreen, white);
-text-align: center;
-margin-left: 5%;
-  margin-right: 5%;
-margin-top: auto;
-  height:100%;
+    background-image:linear-gradient(lightgreen, white);
+    text-align: center;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: auto;
+    height:100%;
     animation: opacitycoming 0.2s;
 }
 
@@ -164,6 +181,12 @@ animation: slideleft 0.8s;
     margin-left: 0%;
     width: 40%;
   }
+}
+
+@keyframes clignote {
+    0%   {color:black;}
+    50%  {color:#FCA205;}
+    100% {color:black;}
 }
 
 @font-face {
