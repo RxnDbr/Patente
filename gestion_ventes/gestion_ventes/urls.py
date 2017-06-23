@@ -13,11 +13,24 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+import re
+
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf import settings
+from django.views.static import serve
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^', include('ventes.urls')),
 ]
+
+# Static files are not served by Django when DEBUG = False
+# For ease of development, we still allow Django to serve them
+# On the production server, Django won't actually serve the files
+# because the web server will handle /static
+if settings.DEBUG is False:
+    urlpatterns += [
+        # Inspiration: https://stackoverflow.com/questions/6405173/static-files-wont-load-when-out-of-debug-in-django#
+        url(r'^%s(?P<path>.*)$' % re.escape(settings.STATIC_URL.lstrip('/')), serve, kwargs={'document_root': settings.STATIC_ROOT}),
+    ]
