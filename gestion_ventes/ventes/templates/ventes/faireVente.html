@@ -12,6 +12,7 @@
 
     <body>
         <div class="degrade">
+        La Patente - Atelier Coopératif - 507 rue des Sables, Québec, QC G1J 2Y1 - (418) 476-8176
             <form method="post" action="{% url "modifier_transaction" %}">
                 {% csrf_token %}
                 <p><input type="submit" value="Retour à la page des transactions" class="btn"></p>
@@ -75,8 +76,8 @@
                                     <h2> Prix </h2>
                                                 <table class="prix">
                                                     <tr class="fond"><td> Total hors taxes : </td><td><h4> {{totalPrixHT}}</h4></td></tr>
-                                                    <tr class="fond"><td> TVQ : </td><td><h4> {{totalTvq}}</h4></td></tr>
-                                                    <tr class="fond"><td> TPS : </td><td><h4> {{totalTps}}</h4></td> </tr>
+                                                    <tr class="fond"><td> TVQ (1221873552TQ0001) : </td><td><h4> {{totalTvq}}</h4></td></tr>
+                                                    <tr class="fond"><td> TPS (832500987RT0001) :</td><td><h4> {{totalTps}}</h4></td> </tr>
                                                     <tr><td><h4> Total avec taxes : </h4></td><td> <h3> {{totalPrixTC}} $</h3> </td> </tr>
                                                 </table>
                 {%if existant %}
